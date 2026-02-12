@@ -1,0 +1,268 @@
+/* =============================
+   GLOBAL DARK MODE STYLES
+============================= */
+
+/* Root variables for dark mode */
+[data-theme="dark"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  --border-primary: #334155;
+  --border-secondary: #475569;
+  --accent-primary: #3b82f6;
+  --accent-secondary: #60a5fa;
+  --success: #10b981;
+  --error: #ef4444;
+  --warning: #f59e0b;
+}
+
+/* Global body styles */
+[data-theme="dark"] body {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Main app container */
+[data-theme="dark"] #root {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .App {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Register Page */
+[data-theme="dark"] .RegisterContainer {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+}
+
+[data-theme="dark"] .LeftPanel {
+  background-color: #0f172a !important;
+}
+
+[data-theme="dark"] .RightPanel {
+  background-color: #0f172a !important;
+}
+
+[data-theme="dark"] .RegisterCard {
+  background: rgba(30, 41, 59, 0.95) !important;
+  border: 1px solid #334155 !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .WelcomeText,
+[data-theme="dark"] .Subtitle {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .Label {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .Input,
+[data-theme="dark"] input {
+  background-color: #334155 !important;
+  border: 1px solid #475569 !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .Input:focus,
+[data-theme="dark"] input:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+[data-theme="dark"] .Input::placeholder,
+[data-theme="dark"] input::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Login Page */
+[data-theme="dark"] .LoginContainer {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+}
+
+[data-theme="dark"] .LoginCard {
+  background: rgba(30, 41, 59, 0.95) !important;
+  border: 1px solid #334155 !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* OTP Pages */
+[data-theme="dark"] .VerifyContainer {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+}
+
+[data-theme="dark"] .Digit {
+  background-color: #334155 !important;
+  border: 2px solid #475569 !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .Digit:focus {
+  border-color: #3b82f6 !important;
+  background-color: #1e293b !important;
+}
+
+[data-theme="dark"] .Digit:hover {
+  border-color: #6b7280 !important;
+}
+
+/* Landing Page */
+[data-theme="dark"] .HeroSection,
+[data-theme="dark"] .FeaturesSection,
+[data-theme="dark"] .CtaSection {
+  background-color: #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .FeatureCard {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .CtaButton {
+  background-color: #3b82f6 !important;
+  color: white !important;
+}
+
+[data-theme="dark"] .CtaButton:hover {
+  background-color: #2563eb !important;
+}
+
+/* Typography */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6 {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] p,
+[data-theme="dark"] span,
+[data-theme="dark"] div {
+  color: #cbd5e1 !important;
+}
+
+/* Buttons */
+[data-theme="dark"] .Button,
+[data-theme="dark"] button {
+  background-color: #3b82f6 !important;
+  color: white !important;
+  border: 1px solid #3b82f6 !important;
+}
+
+[data-theme="dark"] .Button:hover,
+[data-theme="dark"] button:hover {
+  background-color: #2563eb !important;
+  border-color: #2563eb !important;
+}
+
+[data-theme="dark"] .Button.outline,
+[data-theme="dark"] button.outline {
+  background-color: transparent !important;
+  border: 1px solid #4b5563 !important;
+  color: #d1d5db !important;
+}
+
+[data-theme="dark"] .Button.outline:hover,
+[data-theme="dark"] button.outline:hover {
+  background-color: #374151 !important;
+  border-color: #6b7280 !important;
+}
+
+/* Error messages */
+[data-theme="dark"] .ErrorMessage {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border: 1px solid #ef4444 !important;
+  color: #ef4444 !important;
+}
+
+/* Material-UI Components */
+[data-theme="dark"] .MuiTypography-root {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .MuiOutlinedInput-root {
+  background-color: #334155 !important;
+}
+
+[data-theme="dark"] .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: #475569 !important;
+}
+
+[data-theme="dark"] .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #6b7280 !important;
+}
+
+[data-theme="dark"] .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #3b82f6 !important;
+}
+
+[data-theme="dark"] .MuiButton-outlined {
+  border-color: #4b5563 !important;
+  color: #d1d5db !important;
+}
+
+[data-theme="dark"] .MuiButton-outlined:hover {
+  border-color: #6b7280 !important;
+  background-color: #374151 !important;
+}
+
+[data-theme="dark"] .MuiPaper-root {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .MuiCard-root {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+  border: 1px solid #334155 !important;
+}
+
+/* Links */
+[data-theme="dark"] a,
+[data-theme="dark"] .Link {
+  color: #3b82f6 !important;
+}
+
+[data-theme="dark"] a:hover,
+[data-theme="dark"] .Link:hover {
+  color: #60a5fa !important;
+}
+
+/* Success messages */
+[data-theme="dark"] .SuccessMessage,
+[data-theme="dark"] .success-banner {
+  background: rgba(16, 185, 129, 0.1) !important;
+  border: 1px solid #10b981 !important;
+  color: #10b981 !important;
+}
+
+/* Scrollbar */
+[data-theme="dark"] ::-webkit-scrollbar {
+  width: 8px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: #334155;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 4px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
