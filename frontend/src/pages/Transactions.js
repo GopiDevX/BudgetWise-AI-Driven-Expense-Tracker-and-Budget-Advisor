@@ -381,9 +381,9 @@ const TypeSelector = styled.div`
 const TypeButton = styled.button`
   flex: 1;
   padding: 0.75rem;
-  border: 1px solid ${props => props.active ? 'transparent' : '#e2e8f0'};
-  background: ${props => props.active ? (props.type === 'income' ? '#dcfce7' : '#fee2e2') : 'white'};
-  color: ${props => props.active ? (props.type === 'income' ? '#166534' : '#991b1b') : '#64748b'};
+  border: 1px solid ${props => props.$active ? 'transparent' : '#e2e8f0'};
+  background: ${props => props.$active ? (props.$txnType === 'income' ? '#dcfce7' : '#fee2e2') : 'white'};
+  color: ${props => props.$active ? (props.$txnType === 'income' ? '#166534' : '#991b1b') : '#64748b'};
   border-radius: 0.5rem;
   font-weight: 500;
   cursor: pointer;
@@ -391,7 +391,7 @@ const TypeButton = styled.button`
   transition: all 0.2s;
   
   &:hover {
-    border-color: ${props => !props.active && '#cbd5e1'};
+    border-color: ${props => !props.$active && '#cbd5e1'};
   }
 `;
 
@@ -462,496 +462,496 @@ const EmptyState = styled.div`
 `;
 
 const Transactions = () => {
-    const { user } = useAuth();
-    const { format: formatCurrency } = useCurrency();
-    usePageTitle('Transactions | BudgetWise');
+  const { user } = useAuth();
+  const { format: formatCurrency } = useCurrency();
+  usePageTitle('Transactions | BudgetWise');
 
-    const [transactions, setTransactions] = useState([]);
-    const [filteredTransactions, setFilteredTransactions] = useState([]);
-    const [filterType, setFilterType] = useState('all'); // all, income, expense
-    const [showModal, setShowModal] = useState(false);
-    const [editingTransaction, setEditingTransaction] = useState(null);
-    const [categories, setCategories] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
+  const [transactions, setTransactions] = useState([]);
+  const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const [filterType, setFilterType] = useState('all'); // all, income, expense
+  const [showModal, setShowModal] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-    // Form State
-    const [formData, setFormData] = useState({
-        description: '',
-        amount: '',
-        type: 'expense',
-        categoryId: 1,
-        category: 'Food',
-        date: new Date().toISOString().split('T')[0]
-    });
+  // Form State
+  const [formData, setFormData] = useState({
+    description: '',
+    amount: '',
+    type: 'expense',
+    categoryId: 1,
+    category: 'Food',
+    date: new Date().toISOString().split('T')[0]
+  });
 
-    // Delete Confirmation State
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [transactionToDelete, setTransactionToDelete] = useState(null);
+  // Delete Confirmation State
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [transactionToDelete, setTransactionToDelete] = useState(null);
 
-    // Initial load
-    useEffect(() => {
-        loadCategories();
-        loadTransactions();
-    }, []);
+  // Initial load
+  useEffect(() => {
+    loadCategories();
+    loadTransactions();
+  }, []);
 
-    // Filter transactions when filter or transactions change
-    useEffect(() => {
-        if (filterType === 'all') {
-            setFilteredTransactions(transactions);
-        } else {
-            setFilteredTransactions(transactions.filter(tx => tx.type === filterType));
+  // Filter transactions when filter or transactions change
+  useEffect(() => {
+    if (filterType === 'all') {
+      setFilteredTransactions(transactions);
+    } else {
+      setFilteredTransactions(transactions.filter(tx => tx.type === filterType));
+    }
+  }, [transactions, filterType]);
+
+  const loadCategories = async () => {
+    try {
+      const cats = await categoryService.getCategories();
+      if (cats && cats.length > 0) {
+        setCategories(cats);
+        // Set default category if not set
+        if (!formData.categoryId) {
+          setFormData(prev => ({
+            ...prev,
+            categoryId: cats[0].id,
+            category: cats[0].name
+          }));
         }
-    }, [transactions, filterType]);
+      } else {
+        const defaults = categoryService.getDefaultCategories();
+        setCategories(defaults);
+      }
+    } catch (err) {
+      console.warn('Failed to load categories:', err);
+      setCategories(categoryService.getDefaultCategories());
+    }
+  };
 
-    const loadCategories = async () => {
-        try {
-            const cats = await categoryService.getCategories();
-            if (cats && cats.length > 0) {
-                setCategories(cats);
-                // Set default category if not set
-                if (!formData.categoryId) {
-                    setFormData(prev => ({
-                        ...prev,
-                        categoryId: cats[0].id,
-                        category: cats[0].name
-                    }));
-                }
-            } else {
-                const defaults = categoryService.getDefaultCategories();
-                setCategories(defaults);
-            }
-        } catch (err) {
-            console.warn('Failed to load categories:', err);
-            setCategories(categoryService.getDefaultCategories());
+  const loadTransactions = async () => {
+    setIsLoading(true);
+    try {
+      const txns = await transactionService.getTransactions();
+      setTransactions(txns);
+    } catch (err) {
+      console.error('Failed to load transactions:', err);
+      setError('Failed to load transactions. Please try refreshing.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Helper calculation functions (same as Dashboard)
+  const calculateIncomeUpToDate = (txns, date) => {
+    return txns
+      .filter(tx => {
+        const txDate = new Date(tx.date);
+        return tx.type === 'income' && txDate <= date;
+      })
+      .reduce((sum, tx) => sum + Math.abs(parseFloat(tx.amount)), 0);
+  };
+
+  const calculateExpensesUpToDate = (txns, date) => {
+    return txns
+      .filter(tx => {
+        const txDate = new Date(tx.date);
+        return tx.type === 'expense' && txDate <= date;
+      })
+      .reduce((sum, tx) => sum + Math.abs(parseFloat(tx.amount)), 0);
+  };
+
+  const validateTransaction = (transaction, isUpdate = false, originalTransaction = null) => {
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    const txDate = new Date(transaction.date);
+    txDate.setHours(23, 59, 59, 999);
+
+    const amount = Math.abs(parseFloat(transaction.amount));
+    if (isNaN(amount) || amount <= 0) {
+      return { valid: false, message: 'Amount must be greater than zero' };
+    }
+
+    // Business Logic: Expenses cannot be added for future dates
+    if (transaction.type === 'expense' && txDate > today) {
+      return {
+        valid: false,
+        message: 'Expenses cannot be added for a future date.'
+      };
+    }
+
+    // Check availability for expenses
+    if (transaction.type === 'expense') {
+      const checkDate = new Date(transaction.date);
+      checkDate.setHours(23, 59, 59, 999);
+
+      let currentSavings = calculateIncomeUpToDate(transactions, checkDate) -
+        calculateExpensesUpToDate(transactions, checkDate);
+
+      // Add back original amount if updating
+      if (isUpdate && originalTransaction && originalTransaction.type === 'expense') {
+        const originalDate = new Date(originalTransaction.date);
+        if (originalDate <= checkDate) {
+          currentSavings += Math.abs(originalTransaction.amount);
         }
-    };
+      }
 
-    const loadTransactions = async () => {
-        setIsLoading(true);
-        try {
-            const txns = await transactionService.getTransactions();
-            setTransactions(txns);
-        } catch (err) {
-            console.error('Failed to load transactions:', err);
-            setError('Failed to load transactions. Please try refreshing.');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    // Helper calculation functions (same as Dashboard)
-    const calculateIncomeUpToDate = (txns, date) => {
-        return txns
-            .filter(tx => {
-                const txDate = new Date(tx.date);
-                return tx.type === 'income' && txDate <= date;
-            })
-            .reduce((sum, tx) => sum + Math.abs(parseFloat(tx.amount)), 0);
-    };
-
-    const calculateExpensesUpToDate = (txns, date) => {
-        return txns
-            .filter(tx => {
-                const txDate = new Date(tx.date);
-                return tx.type === 'expense' && txDate <= date;
-            })
-            .reduce((sum, tx) => sum + Math.abs(parseFloat(tx.amount)), 0);
-    };
-
-    const validateTransaction = (transaction, isUpdate = false, originalTransaction = null) => {
-        const today = new Date();
-        today.setHours(23, 59, 59, 999);
-        const txDate = new Date(transaction.date);
-        txDate.setHours(23, 59, 59, 999);
-
-        const amount = Math.abs(parseFloat(transaction.amount));
-        if (isNaN(amount) || amount <= 0) {
-            return { valid: false, message: 'Amount must be greater than zero' };
-        }
-
-        // Business Logic: Expenses cannot be added for future dates
-        if (transaction.type === 'expense' && txDate > today) {
-            return {
-                valid: false,
-                message: 'Expenses cannot be added for a future date.'
-            };
-        }
-
-        // Check availability for expenses
-        if (transaction.type === 'expense') {
-            const checkDate = new Date(transaction.date);
-            checkDate.setHours(23, 59, 59, 999);
-
-            let currentSavings = calculateIncomeUpToDate(transactions, checkDate) -
-                calculateExpensesUpToDate(transactions, checkDate);
-
-            // Add back original amount if updating
-            if (isUpdate && originalTransaction && originalTransaction.type === 'expense') {
-                const originalDate = new Date(originalTransaction.date);
-                if (originalDate <= checkDate) {
-                    currentSavings += Math.abs(originalTransaction.amount);
-                }
-            }
-
-            if (amount > currentSavings) {
-                return {
-                    valid: false,
-                    message: `Insufficient balance on ${checkDate.toLocaleDateString()}. Available: ${formatCurrency(currentSavings)}.`
-                };
-            }
-        }
-
-        return { valid: true };
-    };
-
-    const handleCategoryChange = (e) => {
-        const selectedId = parseInt(e.target.value);
-        const selectedCat = categories.find(c => c.id === selectedId);
-        if (selectedCat) {
-            setFormData(prev => ({
-                ...prev,
-                categoryId: selectedCat.id,
-                category: selectedCat.name
-            }));
-        }
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-
-        const transaction = {
-            type: formData.type,
-            description: formData.description,
-            amount: formData.amount,
-            categoryId: formData.categoryId,
-            category: formData.category,
-            date: formData.date
+      if (amount > currentSavings) {
+        return {
+          valid: false,
+          message: `Insufficient balance on ${checkDate.toLocaleDateString()}. Available: ${formatCurrency(currentSavings)}.`
         };
+      }
+    }
 
-        const validation = validateTransaction(transaction, !!editingTransaction, editingTransaction);
-        if (!validation.valid) {
-            setError(validation.message);
+    return { valid: true };
+  };
+
+  const handleCategoryChange = (e) => {
+    const selectedId = parseInt(e.target.value);
+    const selectedCat = categories.find(c => c.id === selectedId);
+    if (selectedCat) {
+      setFormData(prev => ({
+        ...prev,
+        categoryId: selectedCat.id,
+        category: selectedCat.name
+      }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    const transaction = {
+      type: formData.type,
+      description: formData.description,
+      amount: formData.amount,
+      categoryId: formData.categoryId,
+      category: formData.category,
+      date: formData.date
+    };
+
+    const validation = validateTransaction(transaction, !!editingTransaction, editingTransaction);
+    if (!validation.valid) {
+      setError(validation.message);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      if (editingTransaction) {
+        await transactionService.updateTransaction(editingTransaction.id, transaction);
+      } else {
+        await transactionService.createTransaction(transaction);
+      }
+      await loadTransactions();
+      handleCloseModal();
+    } catch (err) {
+      console.error('Failed to save transaction:', err);
+      setError(err.message || 'Failed to save transaction');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEdit = (transaction) => {
+    setEditingTransaction(transaction);
+    const matchedCat = categories.find(c => c.name === transaction.category);
+
+    setFormData({
+      description: transaction.description,
+      amount: Math.abs(transaction.amount).toString(),
+      type: transaction.type,
+      category: transaction.category,
+      categoryId: matchedCat ? matchedCat.id : (transaction.categoryId || categories[0]?.id),
+      date: transaction.date
+    });
+    setShowModal(true);
+  };
+
+  const initiateDelete = (id) => {
+    const txToDelete = transactions.find(tx => tx.id === id);
+    if (!txToDelete) return;
+
+    // Check if deleting income invalidates future expenses
+    if (txToDelete.type === 'income') {
+      const today = new Date();
+      // Only worry if income is in the past/present
+      if (new Date(txToDelete.date) <= today) {
+        const futureExpenses = transactions.filter(tx =>
+          tx.type === 'expense' && new Date(tx.date) > new Date(txToDelete.date)
+        );
+
+        if (futureExpenses.length > 0) {
+          // This is a simplified check - in reality we should check rolling balance
+          const incomeUpToNow = calculateIncomeUpToDate(transactions, today);
+          const expensesUpToNow = calculateExpensesUpToDate(transactions, today);
+          const currentSavings = incomeUpToNow - expensesUpToNow;
+
+          if ((currentSavings - Math.abs(txToDelete.amount)) < 0) {
+            // Ideally we check if it dips below zero at ANY point in future, but simple check for now
+            setError(`Cannot delete this income. It would result in negative balance for existing expenses.`);
             return;
+          }
         }
+      }
+    }
 
-        try {
-            setIsLoading(true);
-            if (editingTransaction) {
-                await transactionService.updateTransaction(editingTransaction.id, transaction);
-            } else {
-                await transactionService.createTransaction(transaction);
-            }
-            await loadTransactions();
-            handleCloseModal();
-        } catch (err) {
-            console.error('Failed to save transaction:', err);
-            setError(err.message || 'Failed to save transaction');
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    setTransactionToDelete(id);
+    setShowDeleteModal(true);
+  };
 
-    const handleEdit = (transaction) => {
-        setEditingTransaction(transaction);
-        const matchedCat = categories.find(c => c.name === transaction.category);
+  const confirmDelete = async () => {
+    if (!transactionToDelete) return;
 
-        setFormData({
-            description: transaction.description,
-            amount: Math.abs(transaction.amount).toString(),
-            type: transaction.type,
-            category: transaction.category,
-            categoryId: matchedCat ? matchedCat.id : (transaction.categoryId || categories[0]?.id),
-            date: transaction.date
-        });
-        setShowModal(true);
-    };
+    try {
+      setIsLoading(true);
+      await transactionService.deleteTransaction(transactionToDelete);
+      await loadTransactions();
+      setShowDeleteModal(false);
+      setTransactionToDelete(null);
+    } catch (err) {
+      console.error('Failed to delete transaction:', err);
+      setError('Failed to delete transaction: ' + err.message);
+      setShowDeleteModal(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const initiateDelete = (id) => {
-        const txToDelete = transactions.find(tx => tx.id === id);
-        if (!txToDelete) return;
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingTransaction(null);
+    setFormData({
+      description: '',
+      amount: '',
+      type: 'expense',
+      categoryId: categories[0]?.id || 1,
+      category: categories[0]?.name || 'Food',
+      date: new Date().toISOString().split('T')[0]
+    });
+    setError('');
+  };
 
-        // Check if deleting income invalidates future expenses
-        if (txToDelete.type === 'income') {
-            const today = new Date();
-            // Only worry if income is in the past/present
-            if (new Date(txToDelete.date) <= today) {
-                const futureExpenses = transactions.filter(tx =>
-                    tx.type === 'expense' && new Date(tx.date) > new Date(txToDelete.date)
-                );
+  // Stats Calculation
+  const totalIncome = transactions
+    .filter(tx => tx.type === 'income')
+    .reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
 
-                if (futureExpenses.length > 0) {
-                    // This is a simplified check - in reality we should check rolling balance
-                    const incomeUpToNow = calculateIncomeUpToDate(transactions, today);
-                    const expensesUpToNow = calculateExpensesUpToDate(transactions, today);
-                    const currentSavings = incomeUpToNow - expensesUpToNow;
+  const totalExpenses = transactions
+    .filter(tx => tx.type === 'expense')
+    .reduce((sum, tx) => sum + Math.abs(parseFloat(tx.amount)), 0);
 
-                    if ((currentSavings - Math.abs(txToDelete.amount)) < 0) {
-                        // Ideally we check if it dips below zero at ANY point in future, but simple check for now
-                        setError(`Cannot delete this income. It would result in negative balance for existing expenses.`);
-                        return;
-                    }
-                }
-            }
-        }
+  const netBalance = totalIncome - totalExpenses;
 
-        setTransactionToDelete(id);
-        setShowDeleteModal(true);
-    };
+  return (
+    <Container>
+      <Header>
+        <div>
+          <Title>Transactions</Title>
+          <Subtitle>Manage all your income and expenses</Subtitle>
+        </div>
+        <div style={{ display: 'flex' }}>
+          <RefreshButton onClick={loadTransactions} disabled={isLoading}>
+            <FiRefreshCw className={isLoading ? 'spinning' : ''} /> {isLoading ? 'Loading...' : 'Refresh'}
+          </RefreshButton>
+          <Button onClick={() => setShowModal(true)}>
+            <FiPlus /> Add Transaction
+          </Button>
+        </div>
+      </Header>
 
-    const confirmDelete = async () => {
-        if (!transactionToDelete) return;
+      <SummaryGrid>
+        <SummaryCard color="#16a34a">
+          <SummaryLabel>Total Income</SummaryLabel>
+          <SummaryValue style={{ color: '#16a34a' }}>{formatCurrency(totalIncome)}</SummaryValue>
+        </SummaryCard>
+        <SummaryCard color="#dc2626">
+          <SummaryLabel>Total Expenses</SummaryLabel>
+          <SummaryValue style={{ color: '#dc2626' }}>{formatCurrency(totalExpenses)}</SummaryValue>
+        </SummaryCard>
+        <SummaryCard color="#4f46e5">
+          <SummaryLabel>Net Balance</SummaryLabel>
+          <SummaryValue style={{ color: netBalance >= 0 ? '#4f46e5' : '#dc2626' }}>
+            {formatCurrency(netBalance)}
+          </SummaryValue>
+        </SummaryCard>
+      </SummaryGrid>
 
-        try {
-            setIsLoading(true);
-            await transactionService.deleteTransaction(transactionToDelete);
-            await loadTransactions();
-            setShowDeleteModal(false);
-            setTransactionToDelete(null);
-        } catch (err) {
-            console.error('Failed to delete transaction:', err);
-            setError('Failed to delete transaction: ' + err.message);
-            setShowDeleteModal(false);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+      <FilterBar>
+        <FilterButton
+          active={filterType === 'all'}
+          onClick={() => setFilterType('all')}
+        >
+          All Transactions
+        </FilterButton>
+        <FilterButton
+          active={filterType === 'income'}
+          activeColor="#16a34a"
+          activeBg="#dcfce7"
+          onClick={() => setFilterType('income')}
+        >
+          <FiArrowUpCircle style={{ marginRight: '0.5rem' }} /> Modified Income
+        </FilterButton>
+        <FilterButton
+          active={filterType === 'expense'}
+          activeColor="#dc2626"
+          activeBg="#fee2e2"
+          onClick={() => setFilterType('expense')}
+        >
+          <FiArrowDownCircle style={{ marginRight: '0.5rem' }} /> Expense
+        </FilterButton>
+      </FilterBar>
 
-    const handleCloseModal = () => {
-        setShowModal(false);
-        setEditingTransaction(null);
-        setFormData({
-            description: '',
-            amount: '',
-            type: 'expense',
-            categoryId: categories[0]?.id || 1,
-            category: categories[0]?.name || 'Food',
-            date: new Date().toISOString().split('T')[0]
-        });
-        setError('');
-    };
+      <TransactionsList>
+        {filteredTransactions.length === 0 ? (
+          <EmptyState>
+            <h3>No transactions found.</h3>
+            <p>Try changing your filters or add a new transaction.</p>
+          </EmptyState>
+        ) : (
+          [...filteredTransactions]
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .map(transaction => (
+              <TransactionItem key={transaction.id}>
+                <TransactionInfo>
+                  <IconWrapper type={transaction.type}>
+                    {transaction.type === 'income' ? <FiDollarSign /> : <FiArrowDownCircle />}
+                  </IconWrapper>
+                  <TransactionDetails>
+                    <TransactionDescription>{transaction.description}</TransactionDescription>
+                    <TransactionMeta>
+                      <span>{transaction.category}</span>
+                      <span>•</span>
+                      <span>{new Date(transaction.date).toLocaleDateString()}</span>
+                    </TransactionMeta>
+                  </TransactionDetails>
+                </TransactionInfo>
 
-    // Stats Calculation
-    const totalIncome = transactions
-        .filter(tx => tx.type === 'income')
-        .reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
+                <TransactionAmount type={transaction.type}>
+                  {transaction.type === 'income' ? '+' : '-'}{formatCurrency(Math.abs(transaction.amount))}
+                </TransactionAmount>
 
-    const totalExpenses = transactions
-        .filter(tx => tx.type === 'expense')
-        .reduce((sum, tx) => sum + Math.abs(parseFloat(tx.amount)), 0);
+                <Actions>
+                  <ActionButton edit onClick={() => handleEdit(transaction)} title="Edit">
+                    <FiEdit2 size={16} />
+                  </ActionButton>
+                  <ActionButton delete onClick={() => initiateDelete(transaction.id)} title="Delete">
+                    <FiTrash2 size={16} />
+                  </ActionButton>
+                </Actions>
+              </TransactionItem>
+            ))
+        )}
+      </TransactionsList>
 
-    const netBalance = totalIncome - totalExpenses;
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+        title="Delete Transaction"
+        message="Are you sure you want to delete this transaction? This action cannot be undone."
+        confirmText="Delete"
+        type="danger"
+        isLoading={isLoading}
+      />
 
-    return (
-        <Container>
-            <Header>
-                <div>
-                    <Title>Transactions</Title>
-                    <Subtitle>Manage all your income and expenses</Subtitle>
-                </div>
-                <div style={{ display: 'flex' }}>
-                    <RefreshButton onClick={loadTransactions} disabled={isLoading}>
-                        <FiRefreshCw className={isLoading ? 'spinning' : ''} /> {isLoading ? 'Loading...' : 'Refresh'}
-                    </RefreshButton>
-                    <Button onClick={() => setShowModal(true)}>
-                        <FiPlus /> Add Transaction
-                    </Button>
-                </div>
-            </Header>
+      {showModal && (
+        <Modal>
+          <ModalContent>
+            <ModalHeader>
+              <ModalTitle>{editingTransaction ? 'Edit Transaction' : 'Add Transaction'}</ModalTitle>
+              <CloseButton onClick={handleCloseModal}>
+                <FiX size={24} />
+              </CloseButton>
+            </ModalHeader>
 
-            <SummaryGrid>
-                <SummaryCard color="#16a34a">
-                    <SummaryLabel>Total Income</SummaryLabel>
-                    <SummaryValue style={{ color: '#16a34a' }}>{formatCurrency(totalIncome)}</SummaryValue>
-                </SummaryCard>
-                <SummaryCard color="#dc2626">
-                    <SummaryLabel>Total Expenses</SummaryLabel>
-                    <SummaryValue style={{ color: '#dc2626' }}>{formatCurrency(totalExpenses)}</SummaryValue>
-                </SummaryCard>
-                <SummaryCard color="#4f46e5">
-                    <SummaryLabel>Net Balance</SummaryLabel>
-                    <SummaryValue style={{ color: netBalance >= 0 ? '#4f46e5' : '#dc2626' }}>
-                        {formatCurrency(netBalance)}
-                    </SummaryValue>
-                </SummaryCard>
-            </SummaryGrid>
+            {error && <ErrorMessage><FiX size={16} /> {error}</ErrorMessage>}
 
-            <FilterBar>
-                <FilterButton
-                    active={filterType === 'all'}
-                    onClick={() => setFilterType('all')}
+            <Form onSubmit={handleSubmit}>
+              <FormGroup>
+                <Label>Transaction Type</Label>
+                <TypeSelector>
+                  <TypeButton
+                    type="button"
+                    $active={formData.type === 'income'}
+                    $txnType="income"
+                    onClick={() => setFormData({ ...formData, type: 'income' })}
+                  >
+                    Income
+                  </TypeButton>
+                  <TypeButton
+                    type="button"
+                    $active={formData.type === 'expense'}
+                    $txnType="expense"
+                    onClick={() => setFormData({ ...formData, type: 'expense' })}
+                  >
+                    Expense
+                  </TypeButton>
+                </TypeSelector>
+              </FormGroup>
+
+              <FormGroup>
+                <Label>Description</Label>
+                <Input
+                  type="text"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Enter description"
+                  required
+                  autoFocus
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <Label>Amount</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={formData.amount}
+                  onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                  placeholder="0.00"
+                  required
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <Label>Category</Label>
+                <Select
+                  value={formData.categoryId}
+                  onChange={handleCategoryChange}
+                  required
                 >
-                    All Transactions
-                </FilterButton>
-                <FilterButton
-                    active={filterType === 'income'}
-                    activeColor="#16a34a"
-                    activeBg="#dcfce7"
-                    onClick={() => setFilterType('income')}
-                >
-                    <FiArrowUpCircle style={{ marginRight: '0.5rem' }} /> Modified Income
-                </FilterButton>
-                <FilterButton
-                    active={filterType === 'expense'}
-                    activeColor="#dc2626"
-                    activeBg="#fee2e2"
-                    onClick={() => setFilterType('expense')}
-                >
-                    <FiArrowDownCircle style={{ marginRight: '0.5rem' }} /> Expense
-                </FilterButton>
-            </FilterBar>
+                  {categories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </Select>
+              </FormGroup>
 
-            <TransactionsList>
-                {filteredTransactions.length === 0 ? (
-                    <EmptyState>
-                        <h3>No transactions found.</h3>
-                        <p>Try changing your filters or add a new transaction.</p>
-                    </EmptyState>
-                ) : (
-                    [...filteredTransactions]
-                        .sort((a, b) => new Date(b.date) - new Date(a.date))
-                        .map(transaction => (
-                            <TransactionItem key={transaction.id}>
-                                <TransactionInfo>
-                                    <IconWrapper type={transaction.type}>
-                                        {transaction.type === 'income' ? <FiDollarSign /> : <FiArrowDownCircle />}
-                                    </IconWrapper>
-                                    <TransactionDetails>
-                                        <TransactionDescription>{transaction.description}</TransactionDescription>
-                                        <TransactionMeta>
-                                            <span>{transaction.category}</span>
-                                            <span>•</span>
-                                            <span>{new Date(transaction.date).toLocaleDateString()}</span>
-                                        </TransactionMeta>
-                                    </TransactionDetails>
-                                </TransactionInfo>
+              <FormGroup>
+                <Label>Date</Label>
+                <Input
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  max={formData.type === 'expense' ? new Date().toISOString().split('T')[0] : undefined}
+                  required
+                />
+              </FormGroup>
 
-                                <TransactionAmount type={transaction.type}>
-                                    {transaction.type === 'income' ? '+' : '-'}{formatCurrency(Math.abs(transaction.amount))}
-                                </TransactionAmount>
-
-                                <Actions>
-                                    <ActionButton edit onClick={() => handleEdit(transaction)} title="Edit">
-                                        <FiEdit2 size={16} />
-                                    </ActionButton>
-                                    <ActionButton delete onClick={() => initiateDelete(transaction.id)} title="Delete">
-                                        <FiTrash2 size={16} />
-                                    </ActionButton>
-                                </Actions>
-                            </TransactionItem>
-                        ))
-                )}
-            </TransactionsList>
-
-            <ConfirmationModal
-                isOpen={showDeleteModal}
-                onClose={() => setShowDeleteModal(false)}
-                onConfirm={confirmDelete}
-                title="Delete Transaction"
-                message="Are you sure you want to delete this transaction? This action cannot be undone."
-                confirmText="Delete"
-                type="danger"
-                isLoading={isLoading}
-            />
-
-            {showModal && (
-                <Modal>
-                    <ModalContent>
-                        <ModalHeader>
-                            <ModalTitle>{editingTransaction ? 'Edit Transaction' : 'Add Transaction'}</ModalTitle>
-                            <CloseButton onClick={handleCloseModal}>
-                                <FiX size={24} />
-                            </CloseButton>
-                        </ModalHeader>
-
-                        {error && <ErrorMessage><FiX size={16} /> {error}</ErrorMessage>}
-
-                        <Form onSubmit={handleSubmit}>
-                            <FormGroup>
-                                <Label>Transaction Type</Label>
-                                <TypeSelector>
-                                    <TypeButton
-                                        type="button"
-                                        active={formData.type === 'income'}
-                                        type="income"
-                                        onClick={() => setFormData({ ...formData, type: 'income' })}
-                                    >
-                                        Income
-                                    </TypeButton>
-                                    <TypeButton
-                                        type="button"
-                                        active={formData.type === 'expense'}
-                                        type="expense"
-                                        onClick={() => setFormData({ ...formData, type: 'expense' })}
-                                    >
-                                        Expense
-                                    </TypeButton>
-                                </TypeSelector>
-                            </FormGroup>
-
-                            <FormGroup>
-                                <Label>Description</Label>
-                                <Input
-                                    type="text"
-                                    value={formData.description}
-                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    placeholder="Enter description"
-                                    required
-                                    autoFocus
-                                />
-                            </FormGroup>
-
-                            <FormGroup>
-                                <Label>Amount</Label>
-                                <Input
-                                    type="number"
-                                    step="0.01"
-                                    value={formData.amount}
-                                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                                    placeholder="0.00"
-                                    required
-                                />
-                            </FormGroup>
-
-                            <FormGroup>
-                                <Label>Category</Label>
-                                <Select
-                                    value={formData.categoryId}
-                                    onChange={handleCategoryChange}
-                                    required
-                                >
-                                    {categories.map(cat => (
-                                        <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                    ))}
-                                </Select>
-                            </FormGroup>
-
-                            <FormGroup>
-                                <Label>Date</Label>
-                                <Input
-                                    type="date"
-                                    value={formData.date}
-                                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                                    max={formData.type === 'expense' ? new Date().toISOString().split('T')[0] : undefined}
-                                    required
-                                />
-                            </FormGroup>
-
-                            <FormActions>
-                                <SecondaryButton type="button" onClick={handleCloseModal}>
-                                    Cancel
-                                </SecondaryButton>
-                                <PrimaryButton type="submit" disabled={isLoading}>
-                                    {editingTransaction ? 'Save Changes' : 'Add Transaction'}
-                                </PrimaryButton>
-                            </FormActions>
-                        </Form>
-                    </ModalContent>
-                </Modal>
-            )}
-        </Container>
-    );
+              <FormActions>
+                <SecondaryButton type="button" onClick={handleCloseModal}>
+                  Cancel
+                </SecondaryButton>
+                <PrimaryButton type="submit" disabled={isLoading}>
+                  {editingTransaction ? 'Save Changes' : 'Add Transaction'}
+                </PrimaryButton>
+              </FormActions>
+            </Form>
+          </ModalContent>
+        </Modal>
+      )}
+    </Container>
+  );
 };
 
 export default Transactions;

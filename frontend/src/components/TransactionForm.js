@@ -388,16 +388,16 @@ const TransactionForm = ({ transaction, initialData, onSubmit, onCancel, error, 
             <TypeToggleContainer>
               <TypeButton
                 type="button"
-                variant="expense"
-                active={formData.type === 'expense'}
+                $variant="expense"
+                $active={formData.type === 'expense'}
                 onClick={() => setType('expense')}
               >
                 <FiArrowDown /> Expense
               </TypeButton>
               <TypeButton
                 type="button"
-                variant="income"
-                active={formData.type === 'income'}
+                $variant="income"
+                $active={formData.type === 'income'}
                 onClick={() => setType('income')}
               >
                 <FiArrowUp /> Income
