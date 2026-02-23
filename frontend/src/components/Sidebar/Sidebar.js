@@ -297,14 +297,18 @@ const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
 
           {currentUser && (
             <UserProfile>
-              <Avatar>{currentUser.firstName ? currentUser.firstName[0].toUpperCase() : currentUser.email[0].toUpperCase()}</Avatar>
+              <Avatar>
+                {currentUser?.firstName
+                  ? currentUser.firstName[0]?.toUpperCase()
+                  : (currentUser?.email ? currentUser.email[0]?.toUpperCase() : '?')}
+              </Avatar>
               <UserInfo collapsed={collapsed}>
                 <UserName>
-                  {currentUser.firstName
+                  {currentUser?.firstName
                     ? `${currentUser.firstName} ${currentUser.lastName || ''}`
                     : 'User'}
                 </UserName>
-                <UserEmail>{currentUser.email}</UserEmail>
+                <UserEmail>{currentUser?.email || ''}</UserEmail>
               </UserInfo>
             </UserProfile>
           )}

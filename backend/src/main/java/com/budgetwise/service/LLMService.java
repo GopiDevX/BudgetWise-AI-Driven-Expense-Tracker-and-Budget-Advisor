@@ -41,8 +41,6 @@ public class LLMService {
             Map<String, Object> response = (Map<String, Object>) restClient.post()
                     .uri(apiUrl)
                     .header("Authorization", "Bearer " + apiKey)
-                    .header("HTTP-Referer", "http://localhost:3000") // Required by OpenRouter
-                    .header("X-Title", "BudgetWise") // Optional
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(requestBody)
                     .retrieve()

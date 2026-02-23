@@ -363,7 +363,9 @@ class AuthService {
         firstName: decoded.firstName,
         lastName: decoded.lastName,
         department: decoded.department,
-        gender: decoded.gender
+        gender: decoded.gender,
+        subscriptionPlan: decoded.subscriptionPlan,
+        subscriptionPeriod: decoded.subscriptionPeriod
       };
     } catch (error) {
       console.error('JWT decode error:', error);

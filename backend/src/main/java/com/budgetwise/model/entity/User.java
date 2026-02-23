@@ -53,11 +53,23 @@ public class User implements UserDetails {
     @Column(name = "gender")
     private String gender;
 
+    @Column(name = "subscription_plan")
+    private String subscriptionPlan = "FREE";
+
+    @Column(name = "subscription_period")
+    private String subscriptionPeriod = "MONTHLY";
+
+    @Column(name = "subscription_expiry")
+    private LocalDateTime subscriptionExpiry;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         if (preferredCurrency == null) {
             preferredCurrency = "USD";
+        }
+        if (subscriptionPlan == null) {
+            subscriptionPlan = "FREE";
         }
     }
 
@@ -157,6 +169,30 @@ public class User implements UserDetails {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public String getSubscriptionPlan() {
+        return subscriptionPlan;
+    }
+
+    public void setSubscriptionPlan(String subscriptionPlan) {
+        this.subscriptionPlan = subscriptionPlan;
+    }
+
+    public String getSubscriptionPeriod() {
+        return subscriptionPeriod;
+    }
+
+    public void setSubscriptionPeriod(String subscriptionPeriod) {
+        this.subscriptionPeriod = subscriptionPeriod;
+    }
+
+    public LocalDateTime getSubscriptionExpiry() {
+        return subscriptionExpiry;
+    }
+
+    public void setSubscriptionExpiry(LocalDateTime subscriptionExpiry) {
+        this.subscriptionExpiry = subscriptionExpiry;
     }
 
     // UserDetails implementation

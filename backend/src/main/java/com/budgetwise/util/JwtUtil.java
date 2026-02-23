@@ -82,6 +82,8 @@ public class JwtUtil {
         claims.put("lastName", user.getLastName());
         claims.put("department", user.getDepartment());
         claims.put("gender", user.getGender());
+        claims.put("subscriptionPlan", user.getSubscriptionPlan());
+        claims.put("subscriptionPeriod", user.getSubscriptionPeriod());
         return createToken(claims, user.getEmail());
     }
 

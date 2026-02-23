@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
     const initAuth = async () => {
       const token = authService.getToken();
       const currentUser = authService.getCurrentUser();
-      
+
       if (token && currentUser) {
         try {
           const isValid = await authService.validateToken();
@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
           authService.logout();
         }
       }
-      
+
       setLoading(false);
     };
 
@@ -65,11 +65,11 @@ export const AuthProvider = ({ children }) => {
     try {
       // First request OTP for signup
       await authService.requestSignupOtp(userData.email);
-      
+
       // Return success to indicate OTP was sent
       // The UI should navigate to OTP verification page
-      return { 
-        success: true, 
+      return {
+        success: true,
         message: 'OTP sent to your email',
         requiresOtp: true,
         userData: userData // Store user data for later completion
@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }) => {
         gender: userData.gender,
         otp: otp
       };
-      
+
       // Complete signup with the actual OTP
       await authService.completeSignup(signupData);
       return true;
@@ -98,7 +98,7 @@ export const AuthProvider = ({ children }) => {
       console.error('Complete signup error:', error);
       // Check for specific database constraint error
       if (error.message && (
-        error.message.includes('Duplicate entry') || 
+        error.message.includes('Duplicate entry') ||
         error.message.includes('UK_6dotkott2kjsp8vw4d0m25fb7') ||
         error.message.includes('already exists') ||
         error.message.includes('constraint')
@@ -111,6 +111,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
+    currentUser: user, // Alias for backward compatibility
     login,
     logout,
     signup,

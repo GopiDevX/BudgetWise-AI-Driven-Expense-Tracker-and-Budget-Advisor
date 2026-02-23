@@ -1067,7 +1067,7 @@ const Dashboard = () => {
             <Link to="/settings" style={{ textDecoration: 'none' }}>
               <ProfileButton>
                 <ProfileAvatar>
-                  {currentUser?.firstName ? currentUser.firstName[0].toUpperCase() : <FiUser />}
+                  {currentUser?.firstName ? currentUser.firstName[0]?.toUpperCase() : <FiUser />}
                 </ProfileAvatar>
                 <ProfileName>
                   {currentUser?.firstName || 'User'}

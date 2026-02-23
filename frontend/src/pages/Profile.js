@@ -109,7 +109,7 @@ const Profile = () => {
         <CoverImage>
           <AvatarContainer>
             <Avatar>
-              {currentUser.email ? currentUser.email[0].toUpperCase() : <FiUser />}
+              {currentUser?.email ? currentUser.email[0]?.toUpperCase() : (currentUser?.firstName ? currentUser.firstName[0]?.toUpperCase() : <FiUser />)}
             </Avatar>
           </AvatarContainer>
         </CoverImage>
