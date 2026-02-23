@@ -52,8 +52,8 @@ public class AuthService {
 
                 // Verify password
                 if (passwordEncoder.matches(password, user.getPassword())) {
-                    // Generate JWT token
-                    return jwtUtil.generateToken(user.getEmail());
+                    // Generate JWT token with full user info
+                    return jwtUtil.generateToken(user);
                 } else {
                     return null; // Invalid password
                 }
@@ -94,6 +94,10 @@ public class AuthService {
         User user = new User();
         user.setEmail(signupRequest.getEmail());
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
+        user.setFirstName(signupRequest.getFirstName());
+        user.setLastName(signupRequest.getLastName());
+        user.setDepartment(signupRequest.getDepartment());
+        user.setGender(signupRequest.getGender());
         user.setEnabled(true);
 
         User savedUser = userRepository.save(user);
@@ -108,8 +112,8 @@ public class AuthService {
 
         userRoleRepository.save(userRoleEntity);
 
-        // Generate JWT token
-        return jwtUtil.generateToken(savedUser.getEmail());
+        // Generate JWT token with full user info
+        return jwtUtil.generateToken(savedUser);
     }
 
     public void requestLoginOtp(OtpRequest request) {
@@ -145,8 +149,10 @@ public class AuthService {
         otpToken.setVerified(true);
         otpTokenRepository.save(otpToken);
 
-        // Generate JWT token
-        return jwtUtil.generateToken(verification.getEmail());
+        // Generate JWT token with full user info
+        User user = userRepository.findByEmail(verification.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return jwtUtil.generateToken(user);
     }
 
     public void requestForgotPasswordOtp(OtpRequest request) {
@@ -184,7 +190,9 @@ public class AuthService {
         otpTokenRepository.save(otpToken);
 
         // Return a temporary token for password reset
-        return jwtUtil.generateToken(verification.getEmail());
+        User user = userRepository.findByEmail(verification.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return jwtUtil.generateToken(user);
     }
 
     public void resetPassword(PasswordReset passwordReset) {

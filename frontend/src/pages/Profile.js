@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
-import { FiUser, FiMail, FiCalendar } from 'react-icons/fi';
+import { FiUser, FiMail, FiCalendar, FiActivity } from 'react-icons/fi';
 import usePageTitle from '../hooks/usePageTitle';
 
 const ProfileContainer = styled.div`
@@ -93,47 +93,81 @@ const Value = styled.div`
 `;
 
 const Profile = () => {
-    usePageTitle('My Profile | BudgetWise');
-    const { currentUser } = useAuth();
+  usePageTitle('My Profile | BudgetWise');
+  const { currentUser } = useAuth();
 
-    if (!currentUser) return null;
+  if (!currentUser) return null;
 
-    return (
-        <ProfileContainer>
-            <Header>
-                <Title>My Profile</Title>
-                <Subtitle>Manage your personal information</Subtitle>
-            </Header>
+  return (
+    <ProfileContainer>
+      <Header>
+        <Title>My Profile</Title>
+        <Subtitle>Manage your personal information</Subtitle>
+      </Header>
 
-            <ProfileCard>
-                <CoverImage>
-                    <AvatarContainer>
-                        <Avatar>
-                            {currentUser.email ? currentUser.email[0].toUpperCase() : <FiUser />}
-                        </Avatar>
-                    </AvatarContainer>
-                </CoverImage>
+      <ProfileCard>
+        <CoverImage>
+          <AvatarContainer>
+            <Avatar>
+              {currentUser.email ? currentUser.email[0].toUpperCase() : <FiUser />}
+            </Avatar>
+          </AvatarContainer>
+        </CoverImage>
 
-                <CardBody>
-                    <InfoGroup>
-                        <Label>Email Address</Label>
-                        <Value>
-                            <FiMail style={{ color: '#64748b' }} />
-                            {currentUser.email}
-                        </Value>
-                    </InfoGroup>
+        <CardBody>
+          <InfoGroup>
+            <Label>First Name</Label>
+            <Value>
+              <FiUser style={{ color: '#6366f1' }} />
+              {currentUser.firstName || 'Not set'}
+            </Value>
+          </InfoGroup>
 
-                    <InfoGroup>
-                        <Label>Account Type</Label>
-                        <Value>
-                            <FiUser style={{ color: '#64748b' }} />
-                            Free Plan
-                        </Value>
-                    </InfoGroup>
-                </CardBody>
-            </ProfileCard>
-        </ProfileContainer>
-    );
+          <InfoGroup>
+            <Label>Last Name</Label>
+            <Value>
+              <FiUser style={{ color: '#6366f1' }} />
+              {currentUser.lastName || 'Not set'}
+            </Value>
+          </InfoGroup>
+
+          <InfoGroup>
+            <Label>Email Address</Label>
+            <Value>
+              <FiMail style={{ color: '#6366f1' }} />
+              {currentUser.email}
+            </Value>
+          </InfoGroup>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <InfoGroup>
+              <Label>Department</Label>
+              <Value>
+                <span style={{ color: '#6366f1', fontWeight: 'bold' }}>Dept</span>
+                {currentUser.department || 'Not set'}
+              </Value>
+            </InfoGroup>
+
+            <InfoGroup>
+              <Label>Gender</Label>
+              <Value>
+                <FiActivity style={{ color: '#6366f1' }} />
+                {currentUser.gender || 'Not set'}
+              </Value>
+            </InfoGroup>
+          </div>
+
+          <InfoGroup>
+            <Label>Account Type</Label>
+            <Value>
+              <FiUser style={{ color: '#64748b' }} />
+              Free Plan
+            </Value>
+          </InfoGroup>
+        </CardBody>
+      </ProfileCard>
+    </ProfileContainer>
+  );
 };
 
 export default Profile;

@@ -41,6 +41,18 @@ public class User implements UserDetails {
     @Column(name = "preferred_currency")
     private String preferredCurrency = "USD";
 
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(name = "department")
+    private String department;
+
+    @Column(name = "gender")
+    private String gender;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -113,6 +125,38 @@ public class User implements UserDetails {
 
     public void setPreferredCurrency(String preferredCurrency) {
         this.preferredCurrency = preferredCurrency;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 
     // UserDetails implementation

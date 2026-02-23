@@ -198,6 +198,97 @@ const Chip = styled.button`
   }
 `;
 
+// Renders a single bot message line with context-aware styling
+const renderLine = (line, i) => {
+  const trimmed = line.trim();
+  if (!trimmed) return <div key={i} style={{ height: '0.4rem' }} />;
+
+  // Handle horizontal bars
+  if (trimmed.includes('----------------')) {
+    return (
+      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '8px 0' }}>
+        <div style={{ flex: 1, borderTop: '1.5px solid rgba(15, 23, 42, 0.1)' }} />
+        {trimmed.replace(/-+/g, '').trim() && (
+          <span style={{ fontWeight: 600, fontSize: '0.75rem', color: '#6366f1', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            {trimmed.replace(/-+/g, '').trim()}
+          </span>
+        )}
+        <div style={{ flex: 1, borderTop: '1.5px solid rgba(15, 23, 42, 0.1)' }} />
+      </div>
+    );
+  }
+
+  // Monospace lines for bar charts
+  if (line.includes('█')) {
+    return (
+      <div key={i} style={{
+        fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace',
+        fontSize: '0.8rem',
+        lineHeight: 1.6,
+        color: '#4338ca',
+        whiteSpace: 'pre',
+        overflowX: 'auto',
+        letterSpacing: '-0.5px'
+      }}>
+        {line}
+      </div>
+    );
+  }
+
+  const firstChar = [...trimmed][0];
+
+  // Status Badges
+  if (firstChar === '🟢' || firstChar === '🟡' || firstChar === '🔴') {
+    const color = firstChar === '🟢' ? '#16a34a' : firstChar === '🟡' ? '#d97706' : '#dc2626';
+    return <div key={i} style={{ fontWeight: 700, fontSize: '0.9rem', color, lineHeight: 1.8, margin: '4px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>{trimmed}</div>;
+  }
+
+  // Section Headers
+  if ('📊⚠️🎯📌💡📈📉🧠'.includes(firstChar) || trimmed.match(/^(💰|💸|💵)/u)) {
+    return <div key={i} style={{ fontWeight: 600, fontSize: '0.875rem', lineHeight: 1.8, color: '#0f172a', marginTop: '12px', marginBottom: '4px' }}>{trimmed}</div>;
+  }
+
+  // Bullets
+  if (trimmed.startsWith('•')) {
+    return <div key={i} style={{ paddingLeft: '0.8rem', fontSize: '0.875rem', lineHeight: 1.6, color: '#334155', display: 'flex', gap: '8px' }}>{trimmed}</div>;
+  }
+
+  // Normal Text
+  return <div key={i} style={{ fontSize: '0.875rem', lineHeight: 1.6, color: '#1e293b' }}>{line}</div>;
+};
+
+// Splits backend response on \n, literal \n, and emoji markers to ensure line-by-line rendering
+const FormattedMessage = ({ text }) => {
+  if (!text) return null;
+
+  // 1. Convert literal \n strings back into real newlines
+  let processed = text.replace(/\\n/g, '\n');
+
+  // 2. Force splits before specific markers if they're stuck on the same line
+  const markers = ['🟢', '🟡', '🔴', '🧠', '📊', '⚠️', '🎯', '💰', '💸', '💵', '📈', '📉', '•'];
+  markers.forEach(m => {
+    processed = processed.split(m).join('\n' + m);
+  });
+
+  // 3. Special handling for horizontal bars to ensure they stay on their own line
+  processed = processed.replace(/(-{5,})/g, '\n$1\n');
+
+  // 4. Split and clean up lines
+  const lines = processed.split('\n')
+    .map(l => l.trim())
+    .filter((l, idx, arr) => {
+      // Remove consecutive empty lines
+      if (l === '' && idx > 0 && arr[idx - 1] === '') return false;
+      return true;
+    });
+
+  return (
+    <div style={{ wordBreak: 'break-word', fontFamily: 'inherit', display: 'flex', flexDirection: 'column' }}>
+      {lines.map((line, i) => renderLine(line, i))}
+    </div>
+  );
+};
+
 const AiAdvisor = () => {
   usePageTitle('AI Advisor | BudgetWise');
   const [input, setInput] = useState('');
@@ -277,7 +368,9 @@ const AiAdvisor = () => {
               <MessageAvatar isUser={msg.isUser}>
                 {msg.isUser ? <FiUser size={16} /> : <FiCpu size={16} />}
               </MessageAvatar>
-              <MessageBubble isUser={msg.isUser}>{msg.text}</MessageBubble>
+              <MessageBubble isUser={msg.isUser}>
+                {msg.isUser ? msg.text : <FormattedMessage text={msg.text} />}
+              </MessageBubble>
             </Message>
           ))}
           {isLoading && (

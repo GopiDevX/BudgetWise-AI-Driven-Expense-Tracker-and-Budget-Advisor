@@ -1,5 +1,6 @@
 package com.budgetwise.util;
 
+import com.budgetwise.model.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +22,7 @@ public class JwtUtil {
 
     @Value("${jwt.expiration:86400000}")
     private Long expiration;
-    
+
     private static String secretKey;
     private static Long expirationTime;
 
@@ -38,7 +39,7 @@ public class JwtUtil {
     public static String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
-    
+
     public static String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -74,13 +75,23 @@ public class JwtUtil {
         return createToken(claims, email);
     }
 
+    public static String generateToken(User user) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("email", user.getEmail());
+        claims.put("firstName", user.getFirstName());
+        claims.put("lastName", user.getLastName());
+        claims.put("department", user.getDepartment());
+        claims.put("gender", user.getGender());
+        return createToken(claims, user.getEmail());
+    }
+
     private static String createToken(Map<String, Object> claims, String subject) {
         JwtBuilder builder = Jwts.builder()
                 .addClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime));
-        
+
         return builder.signWith(getSigningKey()).compact();
     }
 

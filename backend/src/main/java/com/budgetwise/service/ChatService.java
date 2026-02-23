@@ -6,8 +6,9 @@ import com.budgetwise.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
+import java.math.RoundingMode;
+import java.text.NumberFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,44 +32,156 @@ public class ChatService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Long userId = user.getId();
 
-        // 1. Build Context
-        String financialContext = buildFinancialContext(userId, email);
-
-        // 2. Construct System Prompt
-        String systemPrompt = "You are BudgetWise AI, a premium financial advisor chatbot.\n" +
-                "You have access to the user's financial data below.\n" +
-                "Answer based ONLY on this data. Be concise — keep responses under 15 lines.\n\n" +
-                "STRICT FORMAT RULES:\n" +
-                "1. Start EVERY response with a health status on its own line:\n" +
-                "   🟢 Financial Health: Excellent   (savings rate > 50%)\n" +
-                "   🟡 Financial Health: Moderate    (savings rate 20-50%)\n" +
-                "   🔴 Financial Health: At Risk     (savings rate < 20%)\n\n" +
-                "2. Use emoji section headers on their own line, e.g:\n" +
-                "   🧠 Budget Summary\n" +
-                "   📊 Where Your Money Went\n" +
-                "   ⚠️ Things to Improve\n" +
-                "   🎯 Smart Suggestions\n\n" +
-                "3. Use key-value rows for numbers (emoji + label + colon + value):\n" +
-                "   💰 Income: ₹100,000\n" +
-                "   💸 Expenses: ₹2,750\n\n" +
-                "4. Use bullet rows starting with • for lists:\n" +
-                "   • 🛒 Groceries — ₹1,750\n\n" +
-                "5. NEVER use ##, **, --, ---, *, or any markdown symbols.\n" +
-                "6. Leave a blank line between sections.\n" +
-                "7. Bold nothing — use emojis and position for emphasis instead.\n\n" +
-                "User Financial Data:\n" + financialContext;
-
-        // 3. Call LLM
-        String aiResponse = llmService.getChatResponse(systemPrompt, message);
-
-        // 4. Fallback if AI fails (e.g. invalid key)
-        if (aiResponse.startsWith("Error") || aiResponse.contains("Configuration Error")) {
-            return processMessageFallback(message, userId, email) + "\n\n(AI Request Failed: " + aiResponse + ")";
+        // Route: financial query → rich Java visualization + AI suggestions
+        // casual message → AI conversational reply
+        if (isFinancialQuery(message)) {
+            return buildSpendingVisualization(userId, email);
         }
 
-        // 5. Ensure response is properly line-separated (AI often ignores newline
-        // instructions)
-        return normalizeAiResponse(aiResponse);
+        // Casual / general question — let AI answer naturally
+        String financialContext = buildFinancialContext(userId, email);
+        String systemPrompt = "You are BudgetWise AI, a friendly financial assistant. "
+                + "Answer the user's question naturally and briefly (1-3 sentences). "
+                + "Only use the financial data below if directly relevant.\n\n"
+                + "User Financial Data:\n" + financialContext;
+
+        String aiResponse = llmService.getChatResponse(systemPrompt, message);
+        if (aiResponse.startsWith("Error") || aiResponse.contains("Configuration Error")) {
+            return processMessageFallback(message, userId, email);
+        }
+        return aiResponse;
+    }
+
+    /** Returns true if the message is asking about finances / spending. */
+    private boolean isFinancialQuery(String msg) {
+        String m = msg.toLowerCase();
+        return m.contains("spend") || m.contains("budget") || m.contains("income")
+                || m.contains("expense") || m.contains("saving") || m.contains("analys")
+                || m.contains("financ") || m.contains("money") || m.contains("balance")
+                || m.contains("transaction") || m.contains("invest") || m.contains("summary")
+                || m.contains("breakdown") || m.contains("report") || m.contains("how much")
+                || m.contains("overview") || m.contains("spend") || m.contains("tip")
+                || m.contains("suggestion") || m.contains("advice") || m.contains("₹")
+                || m.contains("rs.") || m.contains("rupee");
+    }
+
+    /** Builds the full rich visualization card from real financial data. */
+    private String buildSpendingVisualization(Long userId, String email) {
+        BigDecimal income = transactionService.getTotalIncome(userId);
+        BigDecimal expenses = transactionService.getTotalExpenses(userId);
+        income = income != null ? income : BigDecimal.ZERO;
+        expenses = expenses != null ? expenses : BigDecimal.ZERO;
+        BigDecimal savings = income.subtract(expenses);
+
+        double savingsRate = income.compareTo(BigDecimal.ZERO) > 0
+                ? savings.divide(income, 4, RoundingMode.HALF_UP).doubleValue() * 100
+                : 0;
+
+        String healthEmoji, healthLabel;
+        if (savingsRate >= 50) {
+            healthEmoji = "\uD83D\uDFE2";
+            healthLabel = "Excellent";
+        } else if (savingsRate >= 20) {
+            healthEmoji = "\uD83D\uDFE1";
+            healthLabel = "Moderate";
+        } else {
+            healthEmoji = "\uD83D\uDD34";
+            healthLabel = "At Risk";
+        }
+
+        NumberFormat nf = NumberFormat.getNumberInstance(new Locale("en", "IN"));
+        nf.setMaximumFractionDigits(0);
+
+        // Spending breakdown by category
+        List<Transaction> txs = transactionService.getUserTransactions(userId);
+        Map<String, BigDecimal> catSpend = new LinkedHashMap<>();
+        for (Transaction tx : txs) {
+            if ("EXPENSE".equalsIgnoreCase(tx.getType().name())) {
+                String cat = tx.getCategory() != null ? tx.getCategory().getName() : tx.getDescription();
+                catSpend.merge(cat, tx.getAmount(), BigDecimal::add);
+            }
+        }
+        // Sort descending by amount
+        List<Map.Entry<String, BigDecimal>> sorted = catSpend.entrySet().stream()
+                .sorted(Map.Entry.<String, BigDecimal>comparingByValue().reversed())
+                .collect(Collectors.toList());
+
+        // Build response
+        StringBuilder sb = new StringBuilder();
+        sb.append("----------------------------------\n");
+        sb.append(healthEmoji).append(" Financial Health: ").append(healthLabel).append("\n");
+        sb.append("----------------------------------\n");
+        sb.append("\n");
+        sb.append("\uD83D\uDCB0 Income:   \u20B9").append(nf.format(income)).append("\n");
+        sb.append("\uD83D\uDCB8 Expenses: \u20B9").append(nf.format(expenses)).append("\n");
+        sb.append("\uD83D\uDCB5 Savings:  \u20B9").append(nf.format(savings))
+                .append("  (").append(String.format("%.0f", savingsRate)).append("%)\n");
+
+        if (!sorted.isEmpty()) {
+            sb.append("\n");
+            sb.append("\uD83D\uDCCA Spending Breakdown\n");
+            int maxNameLen = sorted.stream().mapToInt(e -> e.getKey().length()).max().orElse(10);
+            for (Map.Entry<String, BigDecimal> e : sorted) {
+                double pct = expenses.compareTo(BigDecimal.ZERO) > 0
+                        ? e.getValue().divide(expenses, 4, RoundingMode.HALF_UP).doubleValue() * 100
+                        : 0;
+                int bars = (int) Math.round(pct / 5.0); // each █ = 5%
+                String bar = "\u2588".repeat(Math.max(1, bars));
+                String name = String.format("%-" + maxNameLen + "s", e.getKey());
+                sb.append(name).append("  ").append(bar)
+                        .append(" ").append(String.format("%.0f", pct)).append("%\n");
+            }
+        }
+
+        // Budget alerts
+        List<Map<String, Object>> budgets = budgetService.getBudgetStatus(email);
+        List<String> alerts = new ArrayList<>();
+        for (Map<String, Object> b : budgets) {
+            if ("over".equalsIgnoreCase(String.valueOf(b.get("status")))) {
+                alerts.add(b.get("categoryName") + " budget exceeded");
+            }
+        }
+        sb.append("\n");
+        sb.append("\u26A0\uFE0F Alerts\n");
+        if (alerts.isEmpty()) {
+            sb.append("No budget alerts — you're on track!\n");
+        } else {
+            alerts.forEach(a -> sb.append("• ").append(a).append("\n"));
+        }
+
+        // AI suggestions (short, focused)
+        String suggestionPrompt = "You are a concise financial advisor. Give exactly 3 short bullet suggestions "
+                + "(starting with •) based on this data. No headers, no greetings, just 3 bullets:\n"
+                + "Income: ₹" + nf.format(income) + ", Expenses: ₹" + nf.format(expenses)
+                + ", Savings rate: " + String.format("%.0f", savingsRate) + "%\n"
+                + "Top spending: "
+                + (sorted.isEmpty() ? "none" : sorted.get(0).getKey() + " ₹" + nf.format(sorted.get(0).getValue()));
+
+        sb.append("\n");
+        sb.append("\uD83C\uDFAF AI Suggestions\n");
+        try {
+            String suggestions = llmService.getChatResponse(suggestionPrompt, "Give 3 bullet suggestions.");
+            if (!suggestions.startsWith("Error")) {
+                // Normalize bullets
+                suggestions = suggestions.replaceAll("(?m)^[-*]\\s", "• ");
+                sb.append(suggestions.trim()).append("\n");
+            } else {
+                sb.append("• Automate your savings each month\n");
+                sb.append("• Review subscriptions for unused services\n");
+                sb.append("• Build a 3-month emergency fund\n");
+            }
+        } catch (Exception e) {
+            sb.append("• Automate your savings each month\n");
+        }
+
+        return sb.toString();
+    }
+
+    /** Builds a bar string: each █ block represents ~5% */
+    @SuppressWarnings("unused")
+    private String buildBar(double pct, int maxLen) {
+        int filled = (int) Math.round(pct / 100.0 * maxLen);
+        return "\u2588".repeat(filled) + "\u2591".repeat(maxLen - filled);
     }
 
     public String generateInsights(String email) {
