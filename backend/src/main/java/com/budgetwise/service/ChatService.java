@@ -35,12 +35,27 @@ public class ChatService {
         String financialContext = buildFinancialContext(userId, email);
 
         // 2. Construct System Prompt
-        String systemPrompt = "You are BudgetWise AI, a helpful and friendly financial advisor. " +
-                "You have access to the user's financial data below. " +
-                "Answer the user's questions based ONLY on this data. " +
-                "If the user asks about something not in the data, say you don't know but can help with their balance, expenses, or budgets. "
-                +
-                "Keep your answers concise and supportive.\n\n" +
+        String systemPrompt = "You are BudgetWise AI, a premium financial advisor chatbot.\n" +
+                "You have access to the user's financial data below.\n" +
+                "Answer based ONLY on this data. Be concise — keep responses under 15 lines.\n\n" +
+                "STRICT FORMAT RULES:\n" +
+                "1. Start EVERY response with a health status on its own line:\n" +
+                "   🟢 Financial Health: Excellent   (savings rate > 50%)\n" +
+                "   🟡 Financial Health: Moderate    (savings rate 20-50%)\n" +
+                "   🔴 Financial Health: At Risk     (savings rate < 20%)\n\n" +
+                "2. Use emoji section headers on their own line, e.g:\n" +
+                "   🧠 Budget Summary\n" +
+                "   📊 Where Your Money Went\n" +
+                "   ⚠️ Things to Improve\n" +
+                "   🎯 Smart Suggestions\n\n" +
+                "3. Use key-value rows for numbers (emoji + label + colon + value):\n" +
+                "   💰 Income: ₹100,000\n" +
+                "   💸 Expenses: ₹2,750\n\n" +
+                "4. Use bullet rows starting with • for lists:\n" +
+                "   • 🛒 Groceries — ₹1,750\n\n" +
+                "5. NEVER use ##, **, --, ---, *, or any markdown symbols.\n" +
+                "6. Leave a blank line between sections.\n" +
+                "7. Bold nothing — use emojis and position for emphasis instead.\n\n" +
                 "User Financial Data:\n" + financialContext;
 
         // 3. Call LLM
@@ -51,7 +66,9 @@ public class ChatService {
             return processMessageFallback(message, userId, email) + "\n\n(AI Request Failed: " + aiResponse + ")";
         }
 
-        return aiResponse;
+        // 5. Ensure response is properly line-separated (AI often ignores newline
+        // instructions)
+        return normalizeAiResponse(aiResponse);
     }
 
     public String generateInsights(String email) {
@@ -136,5 +153,44 @@ public class ChatService {
         }
         // ... (simplified fallback)
         return "I'm having trouble connecting to my brain right now. Please check your API key.";
+    }
+
+    /**
+     * Inserts newlines before every recognised emoji marker so the frontend
+     * can render structured sections even when the AI returns a flat response.
+     * Java String.replace() handles Unicode/emoji correctly.
+     */
+    private String normalizeAiResponse(String response) {
+        if (response == null)
+            return "";
+
+        String[] breakBefore = {
+                "\uD83D\uDFE2", "\uD83D\uDFE1", "\uD83D\uDD34", // 🟢 🟡 🔴
+                "\uD83E\uDDE0", // 🧠
+                "\uD83D\uDCCA", // 📊
+                "\u26A0\uFE0F", // ⚠️
+                "\uD83C\uDFAF", // 🎯
+                "\uD83D\uDCA1", // 💡
+                "\uD83D\uDCCC", // 📌
+                "\uD83D\uDD0D", // 🔍
+                "\u2705", // ✅
+                "\uD83D\uDCB0", // 💰
+                "\uD83D\uDCB8", // 💸
+                "\uD83D\uDCB3", // 💳
+                "\uD83D\uDCBC", // 💼
+                "\uD83D\uDCB9", // 💹
+                "\uD83D\uDCC8", // 📈
+                "\uD83D\uDCC9", // 📉
+        };
+
+        String result = response;
+        for (String sym : breakBefore) {
+            result = result.replace(sym, "\n" + sym);
+        }
+        result = result.replace(" \u2022", "\n\u2022"); // • → \n•
+        result = result.replace("\t\u2022", "\n\u2022");
+        result = result.replaceAll("[ \t]+\n", "\n"); // trailing spaces before \n
+        result = result.replaceAll("\n{3,}", "\n\n"); // collapse 3+ blank lines to 2
+        return result.trim();
     }
 }

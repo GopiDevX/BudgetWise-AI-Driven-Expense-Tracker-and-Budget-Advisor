@@ -18,6 +18,24 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import authService from '../services/authService';
 
+
+// Simple bot message renderer — relies on backend sending \n-separated lines
+const BotMessage = ({ text }) => (
+    <Typography
+        variant="body2"
+        component="div"
+        sx={{
+            whiteSpace: 'pre-wrap',
+            lineHeight: 1.75,
+            fontSize: '0.875rem',
+            color: '#1e293b',
+            wordBreak: 'break-word',
+        }}
+    >
+        {text}
+    </Typography>
+);
+
 const ChatBot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
@@ -26,7 +44,7 @@ const ChatBot = () => {
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef(null);
-    const { user } = useAuth(); // Use user to check if logged in
+    const { user } = useAuth();
     const location = useLocation();
 
     const scrollToBottom = () => {
@@ -84,7 +102,7 @@ const ChatBot = () => {
         }
     };
 
-    if (!user) return null; // Don't show if not logged in
+    if (!user) return null;
 
     return (
         <>
@@ -109,8 +127,8 @@ const ChatBot = () => {
                         position: 'fixed',
                         bottom: 90,
                         right: 24,
-                        width: 350,
-                        height: 500,
+                        width: 380,
+                        height: 520,
                         display: 'flex',
                         flexDirection: 'column',
                         zIndex: 1000,
@@ -145,7 +163,7 @@ const ChatBot = () => {
                             display: 'flex',
                             flexDirection: 'column',
                             gap: 1.5,
-                            bgcolor: 'action.hover' // Slight grey background for chat area
+                            bgcolor: 'action.hover'
                         }}
                     >
                         {messages.map((msg, index) => (
@@ -168,7 +186,8 @@ const ChatBot = () => {
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
-                                            flexShrink: 0
+                                            flexShrink: 0,
+                                            mt: 0.5
                                         }}
                                     >
                                         <BotIcon sx={{ fontSize: 16, color: 'white' }} />
@@ -179,17 +198,20 @@ const ChatBot = () => {
                                     elevation={0}
                                     sx={{
                                         p: 1.5,
-                                        maxWidth: '80%',
+                                        maxWidth: '82%',
                                         borderRadius: 3,
                                         borderTopLeftRadius: msg.sender === 'bot' ? 0 : 3,
                                         borderTopRightRadius: msg.sender === 'user' ? 0 : 3,
                                         bgcolor: msg.sender === 'user' ? 'primary.main' : 'background.paper',
                                         color: msg.sender === 'user' ? 'white' : 'text.primary',
-                                        wordBreak: 'break-word',
-                                        whiteSpace: 'pre-line' // Preserve line breaks
+                                        wordBreak: 'break-word'
                                     }}
                                 >
-                                    <Typography variant="body2">{msg.text}</Typography>
+                                    {msg.sender === 'bot' ? (
+                                        <BotMessage text={msg.text} />
+                                    ) : (
+                                        <Typography variant="body2">{msg.text}</Typography>
+                                    )}
                                 </Paper>
                             </Box>
                         ))}
@@ -242,3 +264,4 @@ const ChatBot = () => {
 };
 
 export default ChatBot;
+
