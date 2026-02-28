@@ -2,60 +2,117 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { FiLock, FiEye, FiEyeOff, FiMail, FiKey } from 'react-icons/fi';
 import usePageTitle from '../hooks/usePageTitle';
 import authService from '../services/authService';
 
+const fadeInScale = keyframes`
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+`;
+
+const float1 = keyframes`
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0, 0) scale(1); }
+`;
+
+const float2 = keyframes`
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-30px, 50px) scale(1.15); }
+  66% { transform: translate(20px, -20px) scale(0.85); }
+  100% { transform: translate(0, 0) scale(1); }
+`;
+
 const LoginContainer = styled.div`
   display: flex;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f2f7ff 100%);
   justify-content: center;
   align-items: center;
   padding: 2rem;
+  position: relative;
+  overflow: hidden;
+
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    z-index: 0;
+  }
+
+  &::before {
+    background: rgba(37, 99, 235, 0.15); /* Blue */
+    top: -150px;
+    left: -150px;
+    animation: ${float1} 15s ease-in-out infinite;
+  }
+
+  &::after {
+    background: rgba(147, 51, 234, 0.15); /* Purple */
+    bottom: -150px;
+    right: -150px;
+    animation: ${float2} 18s ease-in-out infinite;
+  }
 `;
 
 const LoginCard = styled.div`
-  background: white;
-  border-radius: 1rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  padding: 2rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08), 0 10px 15px -3px rgba(0, 0, 0, 0.03);
+  padding: 3rem;
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   position: relative;
+  z-index: 1;
+  animation: ${fadeInScale} 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  @media (max-width: 640px) {
+    padding: 2rem;
+  }
 `;
 
 const Logo = styled.div`
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 `;
 
 const LogoText = styled.h1`
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: 2.25rem;
+  font-weight: 800;
   color: #2563eb;
   margin: 0;
+  letter-spacing: -0.03em;
 `;
 
 const LogoTagline = styled.p`
   color: #64748b;
   margin: 0.5rem 0 0 0;
-  font-size: 0.875rem;
+  font-size: 0.95rem;
+  font-weight: 400;
 `;
 
 const WelcomeText = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1e293b;
+  color: #0f172a;
   margin: 0.5rem 0;
   text-align: center;
 `;
 
 const Subtitle = styled.p`
   color: #64748b;
-  font-size: 0.875rem;
-  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  margin: 0 0 1.5rem 0;
   text-align: center;
 `;
 
@@ -73,40 +130,54 @@ const Label = styled.label`
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: #334155;
   margin-bottom: 0.5rem;
 `;
 
 const InputWrapper = styled.div`
   position: relative;
+  
+  &:focus-within svg {
+    color: #2563eb;
+  }
 `;
 
 const InputIcon = styled.div`
   position: absolute;
-  left: 0.75rem;
+  left: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #9ca3af;
+  color: #94a3b8;
   pointer-events: none;
-  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  
+  svg {
+    width: 1.125rem;
+    height: 1.125rem;
+    transition: color 0.2s ease;
+  }
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 0.75rem 0.75rem 0.75rem 2.5rem;
-  border: 1px solid ${props => props.$hasError ? '#dc2626' : '#d1d5db'};
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  transition: all 0.2s;
+  padding: 0.875rem 1rem 0.875rem 2.75rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid ${props => props.$hasError ? '#ef4444' : '#e2e8f0'};
+  border-radius: 12px;
+  font-size: 0.95rem;
+  color: #1e293b;
+  transition: all 0.2s ease;
   
   &:focus {
     outline: none;
-    border-color: ${props => props.$hasError ? '#dc2626' : '#2563eb'};
-    box-shadow: 0 0 0 3px ${props => props.$hasError ? 'rgba(220, 38, 38, 0.1)' : 'rgba(37, 99, 235, 0.1)'};
+    border-color: ${props => props.$hasError ? '#ef4444' : '#3b82f6'};
+    box-shadow: 0 0 0 4px ${props => props.$hasError ? 'rgba(239, 68, 68, 0.1)' : 'rgba(59, 130, 246, 0.15)'};
+    background: #ffffff;
   }
   
   &::placeholder {
-    color: #9ca3af;
+    color: #94a3b8;
   }
 `;
 
@@ -119,16 +190,24 @@ const FieldError = styled.span`
 
 const PasswordToggle = styled.button`
   position: absolute;
-  right: 0.75rem;
+  right: 1rem;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: #9ca3af;
+  color: #94a3b8;
   cursor: pointer;
   padding: 0.25rem;
+  display: flex;
+  align-items: center;
   
-  &:hover {
+  svg {
+    width: 1.125rem;
+    height: 1.125rem;
+    transition: color 0.2s ease;
+  }
+  
+  &:hover svg {
     color: #64748b;
   }
 `;
@@ -140,7 +219,7 @@ const ForgotText = styled(Link)`
   color: #2563eb;
   font-size: 0.875rem;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 500;
 
   &:hover {
     text-decoration: underline;
@@ -151,23 +230,28 @@ const LoginButton = styled.button`
   width: 100%;
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
-  padding: 0.75rem 1.5rem;
+  padding: 0.875rem 1.5rem;
   border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
-  margin-top: 1rem;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
   
   &:hover {
-    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-    transform: translateY(-1px);
-    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3), 0 0 12px rgba(37, 99, 235, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(0);
   }
   
   &:disabled {
-    background: #9ca3af;
+    background: #94a3b8;
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
@@ -178,8 +262,8 @@ const Spinner = styled.div`
   border: 2px solid rgba(255,255,255,0.3);
   border-top: 2px solid #fff;
   border-radius: 50%;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   animation: spin 0.8s linear infinite;
   display: inline-block;
   vertical-align: middle;
@@ -194,7 +278,7 @@ const Divider = styled.div`
   display: flex;
   align-items: center;
   margin: 1.5rem 0;
-  color: #9ca3af;
+  color: #94a3b8;
   font-size: 0.875rem;
   
   &::before,
@@ -202,7 +286,7 @@ const Divider = styled.div`
     content: '';
     flex: 1;
     height: 1px;
-    background: #e5e7eb;
+    background: #e2e8f0;
   }
   
   &::before {
@@ -217,7 +301,7 @@ const Divider = styled.div`
 const SignUpPrompt = styled.p`
   text-align: center;
   color: #64748b;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   margin-top: 1.5rem;
 `;
 
@@ -225,6 +309,7 @@ const SignUpLink = styled(Link)`
   color: #2563eb;
   text-decoration: none;
   font-weight: 600;
+  margin-left: 0.25rem;
   
   &:hover {
     text-decoration: underline;
@@ -235,8 +320,8 @@ const ErrorMessage = styled.div`
   background: #fef2f2;
   border: 1px solid #fecaca;
   color: #dc2626;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
+  padding: 0.875rem;
+  border-radius: 12px;
   font-size: 0.875rem;
   margin-bottom: 1rem;
   text-align: center;
@@ -244,17 +329,58 @@ const ErrorMessage = styled.div`
 
 const ResendLink = styled.button`
   background: none;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.375rem;
-  color: #64748b;
-  font-size: 0.75rem;
+  border: none;
+  color: #2563eb;
+  font-size: 0.875rem;
+  font-weight: 500;
   cursor: pointer;
-  padding: 0.5rem 1rem;
+  padding: 0;
+  text-decoration: underline;
   transition: all 0.2s;
   
   &:hover {
-    background: #f8fafc;
-    border-color: #d1d5db;
+    color: #1d4ed8;
+  }
+  
+  &:disabled {
+    color: #94a3b8;
+    cursor: not-allowed;
+    text-decoration: none;
+  }
+`;
+
+const OtpContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 1rem;
+`;
+
+const OtpBox = styled.input`
+  width: 50px;
+  height: 55px;
+  padding: 0;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.9);
+  color: #1e293b;
+  transition: all 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: #2563eb;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+    transform: translateY(-2px);
+  }
+
+  &::placeholder {
+    color: #cbd5e1;
+    font-weight: 400;
+    font-size: 1rem;
   }
 `;
 
