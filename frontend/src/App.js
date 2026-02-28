@@ -145,12 +145,9 @@ function App() {
                   <Route
                     path="/"
                     element={
-                      <>
-                        <Navbar />
-                        <main style={{ minHeight: 'calc(100vh - 80px)' }}>
-                          <Landing />
-                        </main>
-                      </>
+                      <main style={{ minHeight: '100vh' }}>
+                        <Landing />
+                      </main>
                     }
                   />
                   <Route
