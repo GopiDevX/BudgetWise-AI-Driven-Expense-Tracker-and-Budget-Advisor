@@ -1,9 +1,9 @@
 // Currency configuration and utilities
 export const CURRENCIES = {
+    INR: { code: 'INR', symbol: '₹', name: 'Indian Rupee', locale: 'en-IN' },
     USD: { code: 'USD', symbol: '$', name: 'US Dollar', locale: 'en-US' },
     EUR: { code: 'EUR', symbol: '€', name: 'Euro', locale: 'de-DE' },
     GBP: { code: 'GBP', symbol: '£', name: 'British Pound', locale: 'en-GB' },
-    INR: { code: 'INR', symbol: '₹', name: 'Indian Rupee', locale: 'en-IN' },
     JPY: { code: 'JPY', symbol: '¥', name: 'Japanese Yen', locale: 'ja-JP' },
     AUD: { code: 'AUD', symbol: 'A$', name: 'Australian Dollar', locale: 'en-AU' },
     CAD: { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar', locale: 'en-CA' },
@@ -16,7 +16,7 @@ export const CURRENCIES = {
  * @param {boolean} showSymbol - Whether to show currency symbol
  * @returns {string} Formatted currency string
  */
-export const formatCurrency = (amount, currencyCode = 'USD', showSymbol = true) => {
+export const formatCurrency = (amount, currencyCode = 'INR', showSymbol = true) => {
     const currency = CURRENCIES[currencyCode] || CURRENCIES.USD;
 
     const formatted = new Intl.NumberFormat(currency.locale, {
@@ -32,8 +32,8 @@ export const formatCurrency = (amount, currencyCode = 'USD', showSymbol = true) 
  * @param {string} currencyCode - Currency code
  * @returns {string} Currency symbol
  */
-export const getCurrencySymbol = (currencyCode = 'USD') => {
-    return CURRENCIES[currencyCode]?.symbol || '$';
+export const getCurrencySymbol = (currencyCode = 'INR') => {
+    return CURRENCIES[currencyCode]?.symbol || '₹';
 };
 
 /**

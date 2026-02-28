@@ -3,21 +3,46 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
 import styled, { keyframes, css } from 'styled-components';
-import { FiLock, FiEye, FiEyeOff, FiMail, FiUser, FiCheckCircle, FiShield, FiTrendingUp, FiActivity, FiDollarSign, FiAlertCircle } from 'react-icons/fi';
+import { FiLock, FiEye, FiEyeOff, FiMail, FiUser, FiCheckCircle, FiShield, FiTrendingUp, FiActivity, FiDollarSign, FiAlertCircle, FiKey } from 'react-icons/fi';
 import usePageTitle from '../hooks/usePageTitle';
 import authService from '../services/authService';
-import ParticleWaveBackground from '../components/ParticleWaveBackground';
 
 // --- Animations ---
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(10px); }
+const fadeInScale = keyframes`
+  from { opacity: 0; transform: scale(0.98) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+`;
+
+const float1 = keyframes`
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0, 0) scale(1); }
+`;
+
+const float2 = keyframes`
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-30px, 50px) scale(1.15); }
+  66% { transform: translate(20px, -20px) scale(0.85); }
+  100% { transform: translate(0, 0) scale(1); }
+`;
+
+const float3 = keyframes`
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, 40px) scale(0.9); }
+  66% { transform: translate(-40px, -40px) scale(1.1); }
+  100% { transform: translate(0, 0) scale(1); }
+`;
+
+const slideUp = keyframes`
+  from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 `;
 
-const float = keyframes`
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
+const floatAnimation = keyframes`
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
 `;
 
 const shimmer = keyframes`
@@ -25,66 +50,78 @@ const shimmer = keyframes`
   100% { background-position: 200% 0; }
 `;
 
-const moveParticle = keyframes`
-  0% { transform: translate(0, 0); }
-  25% { transform: translate(10px, -15px); }
-  50% { transform: translate(-5px, -25px); }
-  75% { transform: translate(-15px, -10px); }
-  100% { transform: translate(0, 0); }
+const cardFloat = keyframes`
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0); }
 `;
 
-const scaleUp = keyframes`
-  0% { transform: scale(0.9); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-`;
-
-// --- Finance Animation Helpers ---
-const floatAnimation = keyframes`
-  0% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-15px) rotate(1deg); }
-  100% { transform: translateY(0px) rotate(0deg); }
-`;
-
-const floatAnimationReverse = keyframes`
-  0% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(15px) rotate(-1deg); }
-  100% { transform: translateY(0px) rotate(0deg); }
-`;
-
-const borderRotate = keyframes`
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-`;
-
-// --- Layout Components ---
+// --- Layout Controls ---
 const Container = styled.div`
   display: flex;
   min-height: 100vh;
-  background: #f1f5f9;
+  background: radial-gradient(circle at center, #ffffff 0%, #eef4ff 100%);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-`;
-
-const LeftPanel = styled.div`
-  flex: 1;
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #172554 100%);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 4rem;
-  color: white;
-  position: relative;
   overflow: hidden;
+  position: relative;
 
   &::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background-image: 
-      radial-gradient(circle at 20% 30%, rgba(255,255,255,0.03) 0%, transparent 20%),
-      radial-gradient(circle at 80% 80%, rgba(255,255,255,0.03) 0%, transparent 20%);
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 40px,
+      rgba(37, 99, 235, 0.03) 40px,
+      rgba(37, 99, 235, 0.03) 41px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 40px,
+      rgba(37, 99, 235, 0.03) 40px,
+      rgba(37, 99, 235, 0.03) 41px
+    );
     pointer-events: none;
+    z-index: 0;
+  }
+`;
+
+// Left Panel (Visuals)
+const LeftPanel = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem;
+  position: relative;
+  overflow: hidden;
+
+  /* Blurred Blobs */
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    filter: blur(100px);
+    z-index: 0;
+  }
+
+  &::before {
+    background: rgba(147, 197, 253, 0.2); /* Light Blue */
+    top: -100px;
+    left: -100px;
+    animation: ${float1} 14s ease-in-out infinite;
+  }
+
+  &::after {
+    background: rgba(192, 132, 252, 0.15); /* Soft Purple */
+    bottom: 10%;
+    right: -100px;
+    animation: ${float2} 18s ease-in-out infinite;
   }
 
   @media (max-width: 1024px) {
@@ -92,243 +129,566 @@ const LeftPanel = styled.div`
   }
 `;
 
-const ParticlesContainer = styled.div`
+const Blob3 = styled.div`
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
-`;
-
-const Particle = styled.div`
-  position: absolute;
-  width: ${props => props.size || '4px'};
-  height: ${props => props.size || '4px'};
-  background: rgba(255, 255, 255, 0.15);
+  width: 500px;
+  height: 500px;
   border-radius: 50%;
-  top: ${props => props.top};
-  left: ${props => props.left};
-  animation: ${moveParticle} ${props => props.duration || '10s'} infinite linear alternate;
+  filter: blur(100px);
+  background: rgba(34, 211, 238, 0.12); /* Subtle Cyan */
+  top: 40%;
+  left: 30%;
+  animation: ${float3} 16s ease-in-out infinite;
+  z-index: 0;
+  pointer-events: none;
 `;
 
-const BrandContent = styled.div`
-  max-width: 480px;
+const IllustrationWrapper = styled.div`
   position: relative;
   z-index: 10;
-  animation: ${fadeIn} 0.8s ease-out;
-`;
-
-const LogoDisplay = styled.div`
-  font-size: 3rem;
-  font-weight: 800;
-  margin-bottom: 2rem;
-  background: linear-gradient(to right, #ffffff, #93c5fd);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  width: fit-content;
-`;
-
-const FinanceComposition = styled.div`
-  position: relative;
   width: 100%;
   max-width: 500px;
-  height: 400px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 2rem;
-  perspective: 1000px;
+  animation: ${slideUp} 1s ease-out;
 `;
 
-const MainCard = styled.div`
-  width: 300px;
-  height: 190px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 24px;
-  padding: 1.5rem;
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.5),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-  position: relative;
-  z-index: 2;
-  animation: ${scaleUp} 0.8s ease-out;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  overflow: hidden;
+const TextContent = styled.div`
+  text-align: left;
+  margin-top: 3rem;
+  z-index: 10;
+  animation: ${slideUp} 1s ease-out 0.2s both;
 
-  &::after {
-    content: "";
-    position: absolute;
-    top: 0; right: 0; bottom: 0; left: 0;
-    transform: translateX(-100%);
-    background-image: linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0) 0,
-      rgba(255, 255, 255, 0.1) 20%,
-      rgba(255, 255, 255, 0.2) 60%,
-      rgba(255, 255, 255, 0)
-    );
-    animation: ${shimmer} 3s infinite;
+  h1 {
+    font-size: 2.75rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    letter-spacing: -0.03em;
+  }
+
+  p {
+    font-size: 1.125rem;
+    color: #475569;
+    max-width: 400px;
+    line-height: 1.6;
   }
 `;
 
-const CardHeader = styled.div`
+// AI Finance Abstract Mockup
+const MockupCard = styled.div`
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: 
+    0 25px 50px -12px rgba(37, 99, 235, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  position: relative;
+  overflow: hidden;
+`;
+
+const MockupHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #fff;
-  font-size: 0.875rem;
-  font-weight: 500;
-  opacity: 0.9;
-  z-index: 2;
+  margin-bottom: 2rem;
+  
+  .badge {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
 `;
 
-const CardBalance = styled.div`
-  font-size: 2.25rem;
-  font-weight: 700;
-  color: #fff;
-  margin-top: 0.25rem;
-  letter-spacing: -0.02em;
-  z-index: 2;
-`;
-
-const CardGraph = styled.div`
+const MockupChart = styled.div`
+  height: 120px;
   display: flex;
   align-items: flex-end;
-  gap: 10px;
-  height: 50px;
-  margin-top: auto;
-  z-index: 2;
-`;
-
-const GraphBar = styled.div`
-  flex: 1;
-  background: ${props => props.$active ? '#60a5fa' : 'rgba(255,255,255,0.15)'};
-  border-radius: 4px;
-  height: ${props => props.$height};
-  animation: ${scaleUp} 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  animation-delay: ${props => props.$delay};
-  transform-origin: bottom;
+  gap: 12px;
+  
+  .bar {
+    flex: 1;
+    background: linear-gradient(to top, rgba(37, 99, 235, 0.1), rgba(37, 99, 235, 0.5));
+    border-radius: 8px 8px 0 0;
+    position: relative;
+    overflow: hidden;
+    
+    &.active {
+      background: linear-gradient(to top, #3b82f6, #2563eb);
+    }
+  }
 `;
 
 const FloatingElement = styled.div`
   position: absolute;
-  background: ${props => props.$bg || 'rgba(255, 255, 255, 0.9)'};
-  color: ${props => props.$color || '#0f172a'};
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
-  box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.2);
+  background: white;
+  color: #0f172a;
+  padding: 0.875rem 1.25rem;
+  border-radius: 16px;
+  box-shadow: 0 15px 35px -5px rgba(37, 99, 235, 0.15);
   font-weight: 600;
   font-size: 0.875rem;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  z-index: 3;
-  animation: ${floatAnimation} 5s ease-in-out infinite;
+  gap: 0.75rem;
+  z-index: 12;
+  animation: ${floatAnimation} 6s ease-in-out infinite;
   animation-delay: ${props => props.$delay || '0s'};
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.5);
+  border: 1px solid rgba(241, 245, 249, 1);
 
-  svg {
-    color: ${props => props.$iconColor};
-    width: 20px;
-    height: 20px;
+  .icon-wrapper {
+    background: ${props => props.$iconBg || '#eff6ff'};
+    color: ${props => props.$iconColor || '#2563eb'};
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 `;
 
-// --- Right Panel (Form) ---
+// Right Panel (Auth Form)
 const RightPanel = styled.div`
   flex: 1;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   padding: 2rem;
-  background: #f1f5f9;
   position: relative;
-  overflow-y: auto;
+  z-index: 10;
 `;
 
 const RegisterCard = styled.div`
-  background: #ffffff;
-  padding: 2.5rem;
-  border-radius: 1.5rem;
-  box-shadow: 
-    0 20px 25px -5px rgba(0, 0, 0, 0.1), 
-    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(37, 99, 235, 0.08); /* Subtle border */
+  border-radius: 20px;
+  box-shadow: 0 30px 60px rgba(37, 99, 235, 0.15);
+  padding: 1.5rem 2.5rem; /* Reduced to save vertical space */
   width: 100%;
   max-width: 480px;
-  animation: ${fadeIn} 0.6s ease-out;
-  position: relative;
-  z-index: 1;
-
-  /* Animated Border Effect */
-  &::before {
-    content: "";
-    position: absolute;
-    inset: -2px;
-    z-index: -1;
-    border-radius: 1.6rem;
-    background: linear-gradient(
-      45deg, 
-      #eff6ff, 
-      #3b82f6, 
-      #eff6ff, 
-      #60a5fa
-    );
-    background-size: 300% 300%;
-    animation: ${borderRotate} 4s ease infinite;
-    opacity: 0.6;
-  }
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: ${fadeInScale} 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: #ffffff;
-    border-radius: 1.5rem;
+  &:hover {
+    animation: ${cardFloat} 8s ease-in-out infinite;
   }
 
   @media (max-width: 640px) {
-    padding: 1.5rem;
-    box-shadow: none;
-    &::before { display: none; }
-    &::after { display: none; }
+    padding: 2.5rem 2rem;
+    box-shadow: 0 20px 40px rgba(37, 99, 235, 0.1);
   }
+`;
+
+const Logo = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+`;
+
+const LogoIcon = styled.div`
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+  svg { width: 22px; height: 22px; }
+`;
+
+const LogoText = styled.h1`
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.02em;
 `;
 
 const FormHeader = styled.div`
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 `;
 
-const Title = styled.h1`
-  font-size: 1.875rem;
-  font-weight: 700;
+const WelcomeText = styled.h2`
+  font-size: 1.5rem;
+  font-weight: 600;
   color: #0f172a;
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.01em;
+  margin: 0 0 0.5rem 0;
+  text-align: center;
 `;
 
 const Subtitle = styled.p`
   color: #64748b;
-  font-size: 0.925rem;
+  font-size: 0.95rem;
+  font-weight: 400;
+  margin: 0 0 1.5rem 0;
+  text-align: center;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 0.75rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.5rem;
+  
+  /* Custom Scrollbar for the form */
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
 `;
 
-const InputGroup = styled.div`
+const FormGroup = styled.div`
+  position: relative;
+`;
+
+const Label = styled.label`
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.5rem;
+`;
+
+const InputWrapper = styled.div`
+  position: relative;
+  
+  &:focus-within svg {
+    color: #2563eb;
+  }
+`;
+
+const InputIcon = styled.div`
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
   display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  align-items: center;
+  
+  svg {
+    width: 1.125rem;
+    height: 1.125rem;
+    transition: color 0.3s ease;
+  }
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 0.65rem 1rem 0.65rem 2.875rem;
+  background: #ffffff;
+  border: 1px solid ${props => props.$hasError ? '#ef4444' : '#e2e8f0'};
+  border-radius: 14px;
+  font-size: 0.95rem;
+  color: #0f172a;
+  transition: all 0.3s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: ${props => props.$hasError ? '#ef4444' : '#3b82f6'};
+    box-shadow: 0 0 0 4px ${props => props.$hasError ? 'rgba(239, 68, 68, 0.1)' : 'rgba(59, 130, 246, 0.15)'};
+    transform: scale(1.01);
+  }
+  
+  &::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
+  }
+`;
+
+const FieldError = styled.span`
+  color: #ef4444;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 0.375rem;
+  display: block;
+`;
+
+const PasswordToggle = styled.button`
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  
+  svg {
+    width: 1.125rem;
+    height: 1.125rem;
+    transition: color 0.3s ease;
+  }
+  
+  &:hover svg {
+    color: #475569;
+  }
+`;
+
+const ForgotText = styled(Link)`
+  display: inline-block;
+  margin-top: 0.5rem;
+  text-align: right;
+  color: #2563eb;
+  font-size: 0.875rem;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+
+  &:hover {
+    color: #1d4ed8;
+  }
+`;
+
+const TermsContainer = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+`;
+
+const CheckboxInput = styled.input`
+  margin-top: 0.25rem;
+  cursor: pointer;
+  accent-color: #2563eb;
+  width: 1rem;
+  height: 1rem;
+`;
+
+const TermsText = styled.label`
+  font-size: 0.875rem;
+  color: #64748b;
+  cursor: pointer;
+  line-height: 1.4;
+
+  a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+`;
+
+const LoginButton = styled.button`
+  width: 100%;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 0.25rem;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+  position: relative;
+  overflow: hidden;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%);
+    transform-origin: 50% 50%;
+  }
+
+  &:focus:not(:active)::after {
+    animation: ripple 1s ease-out;
+  }
+  
+  @keyframes ripple {
+    0% { transform: scale(0, 0); opacity: 0.5; }
+    20% { transform: scale(25, 25); opacity: 0.5; }
+    100% { opacity: 0; transform: scale(40, 40); }
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35), 0 0 15px rgba(37, 99, 235, 0.2);
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  }
+  
+  &:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+`;
+
+
+
+const Spinner = styled.div`
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top: 2px solid #fff;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+`;
+
+const GradientDivider = styled.div`
+  display: flex;
+  align-items: center;
+  margin: 1.5rem 0;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  font-weight: 500;
+  
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, 
+      rgba(226, 232, 240, 0), 
+      rgba(226, 232, 240, 1), 
+      rgba(226, 232, 240, 0)
+    );
+  }
+  
+  &::before { margin-right: 1rem; }
+  &::after { margin-left: 1rem; }
+`;
+
+const SignUpPrompt = styled.p`
+  text-align: center;
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-top: 0.8rem;
+`;
+
+const SignUpLink = styled(Link)`
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 0.25rem;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const ErrorMessage = styled.div`
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.875rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+  text-align: center;
+`;
+
+const ResendLink = styled.button`
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s;
+  
+  &:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+  }
+  
+  &:disabled {
+    color: #94a3b8;
+    cursor: not-allowed;
+    text-decoration: none;
+  }
+`;
+
+const OtpContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+`;
+
+const OtpBox = styled.input`
+  width: 50px;
+  height: 55px;
+  padding: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  background: #ffffff;
+  color: #0f172a;
+  transition: all 0.3s;
+
+  &:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+    transform: scale(1.05);
+  }
+
+  &::placeholder {
+    color: #cbd5e1;
+    font-weight: 400;
+    font-size: 1rem;
+  }
 `;
 
 const Row = styled.div`
@@ -337,91 +697,6 @@ const Row = styled.div`
   @media (max-width: 640px) {
     flex-direction: column;
     gap: 1.25rem;
-  }
-`;
-
-const Label = styled.label`
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #334155;
-`;
-
-const InputWrapper = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
-  
-  svg {
-    position: absolute;
-    left: 12px;
-    color: #94a3b8;
-    width: 18px;
-    height: 18px;
-    transition: color 0.2s;
-  }
-
-  &:focus-within svg {
-    color: #2563eb;
-  }
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 0.75rem 3rem 0.75rem 2.5rem;
-  font-size: 0.925rem;
-  color: #1e293b;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
-  transition: all 0.2s ease;
-
-  &::placeholder {
-    color: #cbd5e1;
-  }
-
-  &:focus {
-    outline: none;
-    border-color: #2563eb;
-    background: #ffffff;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-  }
-
-  ${props => props.$hasError && css`
-    border-color: #ef4444;
-    background: #fef2f2;
-    &:focus {
-      border-color: #ef4444;
-      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-    }
-  `}
-`;
-
-const ErrorText = styled.span`
-  color: #dc2626;
-  font-size: 0.8rem;
-  margin-top: 0.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-weight: 500;
-`;
-
-const PasswordToggle = styled.button`
-  position: absolute;
-  right: 1.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #94a3b8;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  z-index: 10;
-  
-  &:hover {
-    color: #475569;
   }
 `;
 
@@ -434,8 +709,9 @@ const StrengthMeter = styled.div`
 
 const StrengthSegment = styled.div`
   flex: 1;
-  background: #e2e8f0;
+  background: ${props => props.$active ? props.$color : '#e2e8f0'};
   border-radius: 2px;
+  transition: background 0.3s ease;
   
   &.active {
     background: ${props => {
@@ -447,222 +723,51 @@ const StrengthSegment = styled.div`
   }
 `;
 
+
 const StrengthLabel = styled.div`
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
-  text-align: right;
-  font-weight: 500;
-  color: ${props => {
+font-size: 0.75rem;
+margin-top: 0.25rem;
+text-align: right;
+font-weight: 500;
+color: ${props => {
     if (props.$score <= 1) return '#ef4444';
     if (props.$score === 2) return '#f59e0b';
     if (props.$score === 3) return '#84cc16';
     return '#10b981';
-  }};
+  }
+  };
 `;
 
 const GenderContainer = styled.div`
-  display: flex;
-  gap: 0.75rem;
+display: flex;
+gap: 0.75rem;
 `;
 
 const GenderOption = styled.label`
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  padding: 0.6rem;
-  border: 1px solid ${props => props.$checked ? '#2563eb' : '#e2e8f0'};
-  background: ${props => props.$checked ? '#eff6ff' : '#f8fafc'};
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: ${props => props.$checked ? '#2563eb' : '#64748b'};
-  transition: all 0.2s;
+flex: 1;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 0.5rem;
+cursor: pointer;
+padding: 0.4rem;
+border: 1px solid ${props => props.$checked ? '#2563eb' : '#e2e8f0'};
+background: ${props => props.$checked ? '#eff6ff' : '#ffffff'};
+border-radius: 12px;
+font-size: 0.875rem;
+font-weight: 500;
+color: ${props => props.$checked ? '#2563eb' : '#64748b'};
+transition: all 0.2s;
 
   input {
-    display: none;
-  }
+  display: none;
+}
 
   &:hover {
-    border-color: #cbd5e1;
-    background: ${props => props.$checked ? '#eff6ff' : '#f1f5f9'};
-  }
+  border-color: #cbd5e1;
+  background: ${props => props.$checked ? '#eff6ff' : '#f8fafc'};
+}
 `;
-
-const SubmitButton = styled.button`
-  margin-top: 0.5rem;
-  width: 100%;
-  padding: 0.875rem;
-  background: #2563eb;
-  color: white;
-  font-size: 0.925rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-
-  &:hover {
-    background: #1d4ed8;
-    transform: translateY(-1px);
-    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-
-  &:disabled {
-    background: #94a3b8;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-`;
-
-const LinkText = styled.div`
-  text-align: center;
-  margin-top: 1.5rem;
-  font-size: 0.875rem;
-  color: #64748b;
-
-  a {
-    color: #2563eb;
-    text-decoration: none;
-    font-weight: 600;
-    margin-left: 0.25rem;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-`;
-
-const Alert = styled.div`
-  padding: 0.75rem 1rem;
-  background: #fef2f2;
-  border: 1px solid #fee2e2;
-  border-radius: 0.5rem;
-  color: #991b1b;
-  font-size: 0.875rem;
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-const SuccessAlert = styled(Alert)`
-  background: #f0fdf4;
-  border-color: #dcfce7;
-  color: #166534;
-`;
-
-const TermsContainer = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-`;
-
-const CheckboxInput = styled.input`
-  width: 1.1rem;
-  height: 1.1rem;
-  margin-top: 0.15rem;
-  cursor: pointer;
-  accent-color: #2563eb;
-  border-radius: 4px;
-`;
-
-const TermsText = styled.label`
-  font-size: 0.875rem;
-  color: #64748b;
-  line-height: 1.4;
-  cursor: pointer;
-  user-select: none;
-
-  a {
-    color: #2563eb;
-    text-decoration: none;
-    font-weight: 500;
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-`;
-
-// --- OTP Styles (Ported from Login.js) ---
-const OtpContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-top: 1rem;
-`;
-
-const OtpBox = styled.input`
-  width: 50px;
-  height: 55px;
-  padding: 0;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  font-size: 1.5rem;
-  font-weight: 700;
-  text-align: center;
-  background: #f8fafc;
-  color: #1e293b;
-  transition: all 0.2s;
-
-  &:focus {
-    outline: none;
-    border-color: #2563eb;
-    background: white;
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
-    transform: translateY(-2px);
-  }
-
-  &::placeholder {
-    color: #cbd5e1;
-    font-weight: 400;
-    font-size: 1rem;
-  }
-`;
-
-const ResendButton = styled.button`
-  background: none;
-  border: none;
-  color: ${props => props.disabled ? '#94a3b8' : '#2563eb'};
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: ${props => props.disabled ? 'default' : 'pointer'};
-  padding: 0;
-  text-decoration: ${props => props.disabled ? 'none' : 'underline'};
-  
-  &:hover {
-    color: ${props => props.disabled ? '#94a3b8' : '#1d4ed8'};
-  }
-`;
-
-const Spinner = styled.div`
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top: 2px solid #fff;
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  animation: spin 0.8s linear infinite;
-
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-`;
-
-// --- Main Component ---
 
 const Register = () => {
   usePageTitle('Sign Up | BudgetWise');
@@ -1045,311 +1150,251 @@ const Register = () => {
     }
   };
 
-
   return (
     <Container>
+      <Blob3 />
       <LeftPanel>
-        <ParticlesContainer>
-          {[...Array(20)].map((_, i) => (
-            <Particle
-              key={i}
-              top={`${Math.random() * 100}%`}
-              left={`${Math.random() * 100}%`}
-              size={`${Math.random() * 6 + 2}px`}
-              duration={`${Math.random() * 15 + 10}s`}
-            />
-          ))}
-        </ParticlesContainer>
+        <IllustrationWrapper>
+          <FloatingElement top="-20px" left="-30px" $delay="0s" style={{ top: '-10%', left: '-10%' }}>
+            <div className="icon-wrapper" style={{ background: '#ecfdf5', color: '#10b981' }}>
+              <FiTrendingUp />
+            </div>
+            +24.5% Growth
+          </FloatingElement>
 
-        <BrandContent>
-          <LogoDisplay>BudgetWise</LogoDisplay>
+          <FloatingElement bottom="-20px" right="-30px" $delay="1.5s" style={{ bottom: '-10%', right: '-10%' }}>
+            <div className="icon-wrapper" style={{ background: '#f5f3ff', color: '#8b5cf6' }}>
+              <FiActivity />
+            </div>
+            Smart Insights
+          </FloatingElement>
 
-          <FinanceComposition>
-            <MainCard>
-              <CardHeader>
-                <span>Total Assets</span>
-                <FiShield style={{ opacity: 0.8 }} />
-              </CardHeader>
-              <CardBalance>$24,500.00</CardBalance>
-              <CardGraph>
-                <GraphBar $height="40%" $delay="0.1s" />
-                <GraphBar $height="65%" $delay="0.2s" $active />
-                <GraphBar $height="50%" $delay="0.3s" />
-                <GraphBar $height="85%" $active $delay="0.4s" />
-                <GraphBar $height="60%" $delay="0.5s" />
-              </CardGraph>
-            </MainCard>
+          <MockupCard>
+            <MockupHeader>
+              <div style={{ fontWeight: 700, color: '#0f172a' }}>Expense Overview</div>
+              <div className="badge">
+                <FiCheckCircle size={12} /> AI Powered
+              </div>
+            </MockupHeader>
+            <div style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', marginBottom: '1.5rem', letterSpacing: '-0.02em' }}>
+              $14,230<span style={{ fontSize: '1rem', color: '#64748b' }}>.50</span>
+            </div>
+            <MockupChart>
+              {[40, 60, 45, 80, 50, 90, 65].map((height, i) => (
+                <div
+                  key={i}
+                  className={`bar ${i === 5 ? 'active' : ''} `}
+                  style={{ height: `${height}% `, animationDelay: `${i * 0.1} s` }}
+                />
+              ))}
+            </MockupChart>
+          </MockupCard>
+        </IllustrationWrapper>
 
-            <FloatingElement style={{ top: '10%', right: '-5%' }} $delay="2s" $iconColor="#10b981">
-              <FiTrendingUp /> Smart Analytics
-            </FloatingElement>
-
-            <FloatingElement style={{ bottom: '20%', left: '-10%' }} $delay="1s" $iconColor="#6366f1">
-              <FiCheckCircle /> Secure Data
-            </FloatingElement>
-          </FinanceComposition>
-        </BrandContent>
+        <TextContent>
+          <h1>Start managing<br />money smarter<br />today.</h1>
+          <p>AI-powered insights. Smart budgeting. Financial clarity.</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1rem', fontWeight: 600, color: '#1e293b' }}>
+              <div style={{ color: '#2563eb', background: '#eff6ff', borderRadius: '50%', padding: '0.25rem', display: 'flex' }}><FiCheckCircle size={16} /></div>
+              AI Budget Analysis
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1rem', fontWeight: 600, color: '#1e293b' }}>
+              <div style={{ color: '#2563eb', background: '#eff6ff', borderRadius: '50%', padding: '0.25rem', display: 'flex' }}><FiCheckCircle size={16} /></div>
+              Smart Expense Tracking
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1rem', fontWeight: 600, color: '#1e293b' }}>
+              <div style={{ color: '#2563eb', background: '#eff6ff', borderRadius: '50%', padding: '0.25rem', display: 'flex' }}><FiCheckCircle size={16} /></div>
+              Secure & Encrypted
+            </div>
+          </div>
+        </TextContent>
       </LeftPanel>
 
       <RightPanel>
-        <ParticleWaveBackground />
         <RegisterCard>
+          <Logo>
+            <LogoIcon>
+              <FiDollarSign />
+            </LogoIcon>
+            <LogoText>BudgetWise</LogoText>
+          </Logo>
+
           <FormHeader>
-            <Title>{step === 1 ? 'Create Account' : 'Verify Email'}</Title>
+            <WelcomeText>{step === 1 ? 'Create Account' : 'Verify Email'}</WelcomeText>
             <Subtitle>
               {step === 1
-                ? 'Enter your details to get started with your free account.'
+                ? 'Enter your details to get started.'
                 : `We've sent a verification code to ${formData.email}`
               }
-            </Subtitle>
-          </FormHeader>
+            </Subtitle >
+          </FormHeader >
 
-          {errors.form && <Alert><FiShield /> {errors.form}</Alert>}
-          {message && <SuccessAlert><FiCheckCircle /> {message}</SuccessAlert>}
+          {errors.form && <ErrorMessage>{errors.form}</ErrorMessage>}
+          {
+            message && <div style={{
+              background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534',
+              padding: '0.875rem', borderRadius: '12px', fontSize: '0.875rem',
+              fontWeight: 500, marginBottom: '1.25rem', textAlign: 'center'
+            }}>{message}</div>
+          }
 
-          {/* Step 1: Registration Form */}
-          {step === 1 && (
-            <Form onSubmit={handleRegister}>
-              <Row>
-                <InputGroup>
+          <style>{`
+            .form-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 0.85rem;
+            }
+            .full-width {
+              grid-column: 1 / -1;
+            }
+            @media (max-width: 640px) {
+              .form-grid {
+                grid-template-columns: 1fr;
+              }
+            }
+          `}</style>
+          {
+            step === 1 && (
+              <Form onSubmit={handleRegister} noValidate className="form-grid">
+                <FormGroup>
                   <Label htmlFor="firstName">First Name</Label>
                   <InputWrapper>
-                    <FiUser />
-                    <Input
-                      id="firstName"
-                      name="firstName"
-                      placeholder="John"
-                      value={formData.firstName}
-                      onChange={handleChange}
-                      $hasError={!!errors.firstName}
-                    />
+                    <InputIcon style={{ color: errors.firstName ? '#dc2626' : undefined }}><FiUser /></InputIcon>
+                    <Input id="firstName" name="firstName" placeholder="John" value={formData.firstName} onChange={handleChange} $hasError={!!errors.firstName} />
                   </InputWrapper>
-                  {errors.firstName && <ErrorText><FiAlertCircle size={14} /> {errors.firstName}</ErrorText>}
-                </InputGroup>
-
-                <InputGroup>
+                  {errors.firstName && <FieldError>{errors.firstName}</FieldError>}
+                </FormGroup>
+                <FormGroup>
                   <Label htmlFor="lastName">Last Name</Label>
                   <InputWrapper>
-                    <FiUser />
-                    <Input
-                      id="lastName"
-                      name="lastName"
-                      placeholder="Doe"
-                      value={formData.lastName}
-                      onChange={handleChange}
-                      $hasError={!!errors.lastName}
-                    />
+                    <InputIcon style={{ color: errors.lastName ? '#dc2626' : undefined }}><FiUser /></InputIcon>
+                    <Input id="lastName" name="lastName" placeholder="Doe" value={formData.lastName} onChange={handleChange} $hasError={!!errors.lastName} />
                   </InputWrapper>
-                  {errors.lastName && <ErrorText><FiAlertCircle size={14} /> {errors.lastName}</ErrorText>}
-                </InputGroup>
-              </Row>
+                  {errors.lastName && <FieldError>{errors.lastName}</FieldError>}
+                </FormGroup>
 
-              <InputGroup>
-                <Label htmlFor="email">Email Address</Label>
-                <InputWrapper>
-                  <FiMail />
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="name@company.com"
-                    value={formData.email}
-                    onChange={handleChange}
-                    onBlur={handleEmailBlur}
-                    $hasError={!!errors.email}
-                  />
-                  {isCheckingEmail && <Spinner style={{ position: 'absolute', right: '1rem', width: '14px', height: '14px', borderTopColor: '#2563eb', border: '2px solid #e2e8f0' }} />}
-                </InputWrapper>
-                {errors.email && <ErrorText><FiAlertCircle size={14} /> {errors.email}</ErrorText>}
-              </InputGroup>
+                <FormGroup className="full-width">
+                  <Label htmlFor="email">Email Address</Label>
+                  <InputWrapper>
+                    <InputIcon style={{ color: errors.email ? '#dc2626' : undefined }}><FiMail /></InputIcon>
+                    <Input id="email" name="email" type="email" placeholder="name@company.com" value={formData.email} onChange={handleChange} onBlur={handleEmailBlur} $hasError={!!errors.email} />
+                    {isCheckingEmail && <Spinner style={{ position: 'absolute', right: '1rem', width: '14px', height: '14px', borderTopColor: '#2563eb', border: '2px solid #e2e8f0' }} />}
+                  </InputWrapper>
+                  {errors.email && <FieldError>{errors.email}</FieldError>}
+                </FormGroup>
 
-              <Row>
-                <InputGroup>
+                <FormGroup className="full-width">
                   <Label>Gender</Label>
                   <GenderContainer>
                     <GenderOption $checked={formData.gender === 'MALE'}>
-                      <input
-                        type="radio"
-                        name="gender"
-                        value="MALE"
-                        checked={formData.gender === 'MALE'}
-                        onChange={handleChange}
-                      />
-                      Male
+                      <input type="radio" name="gender" value="MALE" checked={formData.gender === 'MALE'} onChange={handleChange} /> Male
                     </GenderOption>
                     <GenderOption $checked={formData.gender === 'FEMALE'}>
-                      <input
-                        type="radio"
-                        name="gender"
-                        value="FEMALE"
-                        checked={formData.gender === 'FEMALE'}
-                        onChange={handleChange}
-                      />
-                      Female
+                      <input type="radio" name="gender" value="FEMALE" checked={formData.gender === 'FEMALE'} onChange={handleChange} /> Female
                     </GenderOption>
                     <GenderOption $checked={formData.gender === 'OTHER'}>
-                      <input
-                        type="radio"
-                        name="gender"
-                        value="OTHER"
-                        checked={formData.gender === 'OTHER'}
-                        onChange={handleChange}
-                      />
-                      Other
+                      <input type="radio" name="gender" value="OTHER" checked={formData.gender === 'OTHER'} onChange={handleChange} /> Other
                     </GenderOption>
                   </GenderContainer>
-                  {errors.gender && <ErrorText><FiAlertCircle size={14} /> {errors.gender}</ErrorText>}
-                </InputGroup>
-              </Row>
+                  {errors.gender && <FieldError>{errors.gender}</FieldError>}
+                </FormGroup>
 
-              <InputGroup>
-                <Label htmlFor="password">Password</Label>
-                <InputWrapper>
-                  <FiLock />
-                  <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Create a password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    $hasError={!!errors.password}
-                  />
-                  <PasswordToggle type="button" onClick={() => setShowPassword(!showPassword)}>
-                    {showPassword ? <FiEyeOff /> : <FiEye />}
-                  </PasswordToggle>
-                </InputWrapper>
-                <StrengthMeter>
-                  {[1, 2, 3, 4].map(score => (
-                    <StrengthSegment
-                      key={score}
-                      $score={passwordStrengthScore}
-                      className={passwordStrengthScore >= score ? 'active' : ''}
-                    />
-                  ))}
-                </StrengthMeter>
-                <StrengthLabel $score={passwordStrengthScore}>
-                  {passwordStrengthScore === 0 ? '' :
-                    passwordStrengthScore < 2 ? 'Weak' :
-                      passwordStrengthScore < 3 ? 'Medium' : 'Strong'}
-                </StrengthLabel>
-                {errors.password && <ErrorText><FiAlertCircle size={14} /> {errors.password}</ErrorText>}
-              </InputGroup>
+                <FormGroup>
+                  <Label htmlFor="password">Password</Label>
+                  <InputWrapper>
+                    <InputIcon style={{ color: errors.password ? '#dc2626' : undefined }}><FiLock /></InputIcon>
+                    <Input id="password" name="password" type={showPassword ? 'text' : 'password'} placeholder="Create a password" value={formData.password} onChange={handleChange} $hasError={!!errors.password} />
+                    <PasswordToggle type="button" onClick={() => setShowPassword(!showPassword)}>
+                      {showPassword ? <FiEyeOff /> : <FiEye />}
+                    </PasswordToggle>
+                  </InputWrapper>
+                  <StrengthMeter>
+                    {[1, 2, 3, 4].map((score, idx) => (
+                      <StrengthSegment key={score} $score={passwordStrengthScore} className={passwordStrengthScore >= score ? 'active' : ''} />
+                    ))}
+                  </StrengthMeter>
+                  <StrengthLabel $score={passwordStrengthScore}>
+                    {passwordStrengthScore === 0 ? '' : passwordStrengthScore < 2 ? 'Weak' : passwordStrengthScore < 3 ? 'Medium' : 'Strong'}
+                  </StrengthLabel>
+                  {errors.password && <FieldError>{errors.password}</FieldError>}
+                </FormGroup>
 
-              <InputGroup>
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <InputWrapper>
-                  <FiLock />
-                  <Input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    placeholder="Repeat password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    $hasError={!!errors.confirmPassword}
-                  />
-                  <PasswordToggle type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-                    {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
-                  </PasswordToggle>
-                </InputWrapper>
-                {errors.confirmPassword && <ErrorText><FiAlertCircle size={14} /> {errors.confirmPassword}</ErrorText>}
-              </InputGroup>
+                <FormGroup>
+                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <InputWrapper>
+                    <InputIcon style={{ color: errors.confirmPassword ? '#dc2626' : undefined }}><FiLock /></InputIcon>
+                    <Input id="confirmPassword" name="confirmPassword" type={showConfirmPassword ? 'text' : 'password'} placeholder="Repeat password" value={formData.confirmPassword} onChange={handleChange} $hasError={!!errors.confirmPassword} />
+                    <PasswordToggle type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                      {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
+                    </PasswordToggle>
+                  </InputWrapper>
+                  {errors.confirmPassword && <FieldError>{errors.confirmPassword}</FieldError>}
+                </FormGroup>
 
-              <TermsContainer>
-                <CheckboxInput
-                  type="checkbox"
-                  id="terms"
-                  checked={agreeToTerms}
-                  onChange={(e) => setAgreeToTerms(e.target.checked)}
-                />
-                <TermsText htmlFor="terms">
-                  I agree to the <Link to="/terms">Terms of Service</Link> and <Link to="/privacy">Privacy Policy</Link>
-                </TermsText>
-              </TermsContainer>
-              {errors.terms && <ErrorText style={{ marginTop: '-1rem', marginLeft: '2rem' }}>{errors.terms}</ErrorText>}
+                <TermsContainer className="full-width">
+                  <CheckboxInput type="checkbox" id="terms" checked={agreeToTerms} onChange={(e) => {
+                    setAgreeToTerms(e.target.checked);
+                    setErrors(prev => { const n = { ...prev }; delete n.terms; return n; });
+                  }} />
+                  <TermsText htmlFor="terms">
+                    I agree to the <Link to="/terms">Terms of Service</Link> and <Link to="/privacy">Privacy Policy</Link>
+                  </TermsText>
+                </TermsContainer>
+                {errors.terms && <FieldError className="full-width" style={{ marginTop: '-0.5rem', marginLeft: '1.5rem' }}>{errors.terms}</FieldError>}
 
-              <SubmitButton type="submit" disabled={isSubmitting}>
-                {isSubmitting ? <Spinner /> : 'Create Account'}
-              </SubmitButton>
-            </Form>
-          )}
+                <LoginButton type="submit" disabled={isSubmitting} className="full-width">
+                  {isSubmitting ? <><Spinner />&nbsp;&nbsp;Processing...</> : 'Create Account'}
+                </LoginButton>
+              </Form>
+            )
+          }
 
-          {/* Step 2: OTP Verification */}
-          {step === 2 && (
-            <Form onSubmit={handleVerifyOtp}>
-              <InputGroup>
-                <OtpContainer onPaste={handleOtpPaste}>
-                  {otp.map((data, index) => (
-                    <OtpBox
-                      key={index}
-                      type="text"
-                      maxLength="1"
-                      value={data}
-                      onChange={(e) => handleOtpChange(e.target, index)}
-                      onKeyDown={(e) => handleOtpKeyDown(e, index)}
-                      onFocus={(e) => e.target.select()}
-                    />
-                  ))}
-                </OtpContainer>
-                {errors.otp && <Alert style={{ marginTop: '1rem', marginBottom: 0 }}><FiShield /> {errors.otp}</Alert>}
+          {
+            step === 2 && (
+              <Form onSubmit={handleVerifyOtp} noValidate>
+                <FormGroup>
+                  <Label>One-Time Password</Label>
+                  <OtpContainer onPaste={handleOtpPaste}>
+                    {otp.map((data, index) => (
+                      <OtpBox key={index} type="text" maxLength="1" value={data} onChange={(e) => handleOtpChange(e.target, index)} onKeyDown={(e) => handleOtpKeyDown(e, index)} onFocus={(e) => e.target.select()} />
+                    ))}
+                  </OtpContainer>
+                  {errors.otp && <FieldError style={{ textAlign: 'center', marginTop: '1rem' }}>{errors.otp}</FieldError>}
 
-                <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.9rem', color: '#64748b' }}>
-                  Didn't receive code?{' '}
-                  <ResendButton type="button" onClick={handleResendOtp} disabled={resendTimer > 0}>
-                    {resendTimer > 0 ? `Resend in ${resendTimer}s` : 'Resend OTP'}
-                  </ResendButton>
-                </div>
-              </InputGroup>
+                  <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.9rem', color: '#64748b' }}>
+                    Didn\'t receive code?{' '}
+                    <ResendLink type="button" onClick={handleResendOtp} disabled={resendTimer > 0}>
+                      {resendTimer > 0 ? `Resend OTP (${resendTimer}s)` : 'Resend OTP'}
+                    </ResendLink>
+                  </div>
+                </FormGroup>
 
-              <SubmitButton type="submit" disabled={isSubmitting}>
-                {isSubmitting ? <Spinner /> : 'Verify & Create Account'}
-              </SubmitButton>
+                <LoginButton type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? <Spinner /> : 'Verify & Create Account'}
+                </LoginButton>
 
-              <button
-                type="button"
-                onClick={() => setStep(1)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#64748b',
-                  fontSize: '0.85rem',
-                  width: '100%',
-                  marginTop: '1rem',
-                  cursor: 'pointer'
-                }}
-              >
-                Back to Signup
-              </button>
-            </Form>
-          )}
+                <button type="button" onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '0.85rem', width: '100%', marginTop: '1rem', cursor: 'pointer', transition: 'color 0.2s' }}>
+                  Back to Signup
+                </button>
+              </Form>
+            )
+          }
 
-          <div style={{ margin: '2rem 0', display: 'flex', alignItems: 'center', color: '#94a3b8' }}>
-            <div style={{ flex: 1, height: '1px', backgroundColor: '#e2e8f0' }}></div>
-            <span style={{ margin: '0 1rem', fontSize: '0.875rem' }}>or</span>
-            <div style={{ flex: 1, height: '1px', backgroundColor: '#e2e8f0' }}></div>
+          <GradientDivider>or sign up with</GradientDivider>
+
+          {googleError && <FieldError style={{ marginBottom: '1rem', textAlign: 'center' }}>{googleError}</FieldError>}
+
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem', filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.05))' }}>
+            <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleError} useOneTap shape="rectangular" theme="outline" text="signup_with" size="large" />
           </div>
 
-          {googleError && <ErrorText style={{ marginBottom: '1rem', justifyContent: 'center' }}><FiAlertCircle size={14} /> {googleError}</ErrorText>}
-
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={handleGoogleError}
-              useOneTap
-              shape="rectangular"
-              theme="outline"
-              text="signup_with"
-              size="large"
-            />
-          </div>
-
-          <LinkText>
-            Already have an account? <Link to="/login">Sign In</Link>
-          </LinkText>
-        </RegisterCard>
-      </RightPanel>
-    </Container>
+          <SignUpPrompt>
+            Already have an account? <SignUpLink to="/login">Log in</SignUpLink>
+          </SignUpPrompt>
+        </RegisterCard >
+      </RightPanel >
+    </Container >
   );
 };
 
