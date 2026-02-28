@@ -24,12 +24,12 @@ const TitleSection = styled.div``;
 const PageTitle = styled.h1`
   font-size: 1.75rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   margin: 0 0 0.25rem 0;
 `;
 
 const PageSubtitle = styled.p`
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   font-size: 0.95rem;
   margin: 0;
 `;
@@ -63,16 +63,16 @@ const SummarySection = styled.div`
 `;
 
 const SummaryCard = styled.div`
-  background: ${props => props.gradient || 'white'};
+  background: ${props => props.gradient || 'var(--bg-secondary, white)'};
   border-radius: 1rem;
   padding: 1.5rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  border: 1px solid ${props => props.light ? 'transparent' : '#f1f5f9'};
+  border: 1px solid ${props => props.light ? 'transparent' : 'var(--border-primary, #f1f5f9)'};
 `;
 
 const SummaryLabel = styled.div`
   font-size: 0.875rem;
-  color: ${props => props.light ? 'rgba(255, 255, 255, 0.9)' : '#64748b'};
+  color: ${props => props.light ? 'rgba(255, 255, 255, 0.9)' : 'var(--text-secondary, #64748b)'};
   margin-bottom: 0.5rem;
   font-weight: 500;
 `;
@@ -80,7 +80,7 @@ const SummaryLabel = styled.div`
 const SummaryValue = styled.div`
   font-size: 1.75rem;
   font-weight: 700;
-  color: ${props => props.light ? 'white' : '#0f172a'};
+  color: ${props => props.light ? 'white' : 'var(--text-primary, #0f172a)'};
 `;
 
 const AccountsGrid = styled.div`
@@ -90,11 +90,11 @@ const AccountsGrid = styled.div`
 `;
 
 const AccountCard = styled.div`
-  background: white;
+  background: var(--bg-secondary, white);
   border-radius: 1rem;
   padding: 1.5rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  border: 1px solid #f1f5f9;
+  border: 1px solid var(--border-primary, #f1f5f9);
   transition: all 0.2s;
 
   &:hover {
@@ -131,12 +131,12 @@ const IconButton = styled.button`
   border: none;
   padding: 0.5rem;
   cursor: pointer;
-  color: #94a3b8;
+  color: var(--text-tertiary, #94a3b8);
   border-radius: 0.5rem;
   transition: all 0.2s;
 
   &:hover {
-    background: #f1f5f9;
+    background: var(--bg-tertiary, #f1f5f9);
     color: ${props => props.danger ? '#ef4444' : '#3b82f6'};
   }
 `;
@@ -144,20 +144,20 @@ const IconButton = styled.button`
 const AccountName = styled.h3`
   font-size: 1.1rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   margin: 0 0 0.25rem 0;
 `;
 
 const AccountType = styled.div`
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin-bottom: 1rem;
   text-transform: capitalize;
 `;
 
 const BalanceSection = styled.div`
   padding-top: 1rem;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--border-primary, #f1f5f9);
 `;
 
 const BalanceLabel = styled.div`
@@ -171,7 +171,7 @@ const BalanceLabel = styled.div`
 const BalanceAmount = styled.div`
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
 `;
 
 const Modal = styled.div`
@@ -188,13 +188,14 @@ const Modal = styled.div`
 `;
 
 const ModalContent = styled.div`
-  background: white;
+  background: var(--bg-secondary, white);
   border-radius: 1rem;
   padding: 2rem;
   max-width: 500px;
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
+  border: 1px solid var(--border-primary, transparent);
 `;
 
 const ModalHeader = styled.div`
@@ -207,7 +208,7 @@ const ModalHeader = styled.div`
 const ModalTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   margin: 0;
 `;
 
@@ -216,13 +217,13 @@ const CloseButton = styled.button`
   border: none;
   padding: 0.5rem;
   cursor: pointer;
-  color: #94a3b8;
+  color: var(--text-tertiary, #94a3b8);
   border-radius: 0.5rem;
   transition: all 0.2s;
 
   &:hover {
-    background: #f1f5f9;
-    color: #0f172a;
+    background: var(--bg-tertiary, #f1f5f9);
+    color: var(--text-primary, #0f172a);
   }
 `;
 
@@ -241,12 +242,14 @@ const FormGroup = styled.div`
 const Label = styled.label`
   font-size: 0.875rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
 `;
 
 const Input = styled.input`
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-secondary, #d1d5db);
+  background: var(--bg-primary, white);
+  color: var(--text-primary, #0f172a);
   border-radius: 0.5rem;
   font-size: 0.875rem;
 
@@ -255,11 +258,17 @@ const Input = styled.input`
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
+
+  &::placeholder {
+    color: var(--text-tertiary, #94a3b8);
+  }
 `;
 
 const Select = styled.select`
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-secondary, #d1d5db);
+  background: var(--bg-primary, white);
+  color: var(--text-primary, #0f172a);
   border-radius: 0.5rem;
   font-size: 0.875rem;
 
@@ -297,11 +306,11 @@ const Button = styled.button`
   `}
 
   ${props => props.secondary && `
-    background: #f1f5f9;
-    color: #64748b;
+    background: var(--bg-tertiary, #f1f5f9);
+    color: var(--text-secondary, #64748b);
 
     &:hover {
-      background: #e2e8f0;
+      background: var(--bg-primary, #e2e8f0);
     }
   `}
 `;
@@ -318,13 +327,13 @@ const ErrorMessage = styled.div`
 const EmptyState = styled.div`
   text-align: center;
   padding: 4rem 2rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
 `;
 
 const EmptyStateTitle = styled.h3`
   font-size: 1.25rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   margin: 0 0 0.5rem 0;
 `;
 

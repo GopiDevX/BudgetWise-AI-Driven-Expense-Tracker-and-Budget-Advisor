@@ -87,25 +87,33 @@ const InputIcon = styled.div`
   transform: translateY(-50%);
   color: #9ca3af;
   pointer-events: none;
+  transition: color 0.2s;
 `;
 
 const Input = styled.input`
   width: 100%;
   padding: 0.75rem 0.75rem 0.75rem 2.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid ${props => props.$hasError ? '#dc2626' : '#d1d5db'};
   border-radius: 0.5rem;
   font-size: 0.875rem;
   transition: all 0.2s;
   
   &:focus {
     outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    border-color: ${props => props.$hasError ? '#dc2626' : '#2563eb'};
+    box-shadow: 0 0 0 3px ${props => props.$hasError ? 'rgba(220, 38, 38, 0.1)' : 'rgba(37, 99, 235, 0.1)'};
   }
   
   &::placeholder {
     color: #9ca3af;
   }
+`;
+
+const FieldError = styled.span`
+  color: #dc2626;
+  font-size: 0.75rem;
+  margin-top: 0.375rem;
+  display: block;
 `;
 
 const PasswordToggle = styled.button`
@@ -252,11 +260,14 @@ const ResendLink = styled.button`
 const Login = () => {
   // Set page title
   usePageTitle('Login | BudgetWise');
-  
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [otpError, setOtpError] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1); // 1: initial, 2: password verified, 3: OTP verified
@@ -269,14 +280,40 @@ const Login = () => {
 
   const handleContinue = async (e) => {
     e.preventDefault();
-    
-    if (!email || (!password && !showOtpInput)) {
-      setError('Please enter email and password');
+
+    setEmailError('');
+    setPasswordError('');
+    setOtpError('');
+    setError('');
+
+    let hasValidationError = false;
+
+    if (!email) {
+      setEmailError('Email is required');
+      hasValidationError = true;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailError('Please enter a valid email');
+      hasValidationError = true;
+    }
+
+    if (step === 1 && !password) {
+      setPasswordError('Password is required');
+      hasValidationError = true;
+    }
+
+    if (step === 2 && !otp) {
+      setOtpError('OTP is required');
+      hasValidationError = true;
+    } else if (step === 2 && otp.length < 6) {
+      setOtpError('OTP must be 6 digits');
+      hasValidationError = true;
+    }
+
+    if (hasValidationError) {
       return;
     }
-    
+
     try {
-      setError('');
       setMessage('');
       setLoading(true);
 
@@ -341,10 +378,13 @@ const Login = () => {
 
   const handleResendOtp = async () => {
     if (!email) {
-      setError('Please enter your email address');
+      setEmailError('Please enter your email address');
+      return;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailError('Please enter a valid email');
       return;
     }
-    
+
     try {
       setError('');
       setMessage('');
@@ -386,7 +426,7 @@ const Login = () => {
           <LogoText>BudgetWise</LogoText>
           <LogoTagline>Smart money management made simple</LogoTagline>
         </Logo>
-        
+
         <WelcomeText>
           {step === 1 && 'Welcome back'}
           {step === 2 && 'Verify your identity'}
@@ -395,53 +435,54 @@ const Login = () => {
           {step === 1 && 'Enter your credentials to continue'}
           {step === 2 && 'Enter the OTP sent to your email'}
         </Subtitle>
-        
+
         {error && <ErrorMessage>{error}</ErrorMessage>}
-        {message && <div style={{ 
-          background: '#f0fdf4', 
-          border: '1px solid #bbf7d0', 
-          color: '#166534', 
-          padding: '0.75rem', 
-          borderRadius: '0.5rem', 
-          fontSize: '0.875rem', 
-          marginBottom: '1rem', 
-          textAlign: 'center' 
+        {message && <div style={{
+          background: '#f0fdf4',
+          border: '1px solid #bbf7d0',
+          color: '#166534',
+          padding: '0.75rem',
+          borderRadius: '0.5rem',
+          fontSize: '0.875rem',
+          marginBottom: '1rem',
+          textAlign: 'center'
         }}>{message}</div>}
-        
-        <Form onSubmit={handleContinue}>
+
+        <Form onSubmit={handleContinue} noValidate>
           <FormGroup>
             <Label htmlFor="email">Email address</Label>
             <InputWrapper>
-              <InputIcon>
+              <InputIcon style={{ color: emailError ? '#dc2626' : undefined }}>
                 <FiMail />
               </InputIcon>
               <Input
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => { setEmail(e.target.value); if (emailError) setEmailError(''); }}
                 placeholder="Enter your email"
-                required
                 autoFocus
                 disabled={step !== 1}
+                $hasError={!!emailError}
               />
             </InputWrapper>
+            {emailError && <FieldError>{emailError}</FieldError>}
           </FormGroup>
-          
+
           {step === 1 && (
             <FormGroup>
               <Label htmlFor="password">Password</Label>
               <InputWrapper>
-                <InputIcon>
+                <InputIcon style={{ color: passwordError ? '#dc2626' : undefined }}>
                   <FiLock />
                 </InputIcon>
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => { setPassword(e.target.value); if (passwordError) setPasswordError(''); }}
                   placeholder="Enter your password"
-                  required
+                  $hasError={!!passwordError}
                 />
                 <PasswordToggle
                   type="button"
@@ -450,47 +491,49 @@ const Login = () => {
                   {showPassword ? <FiEyeOff /> : <FiEye />}
                 </PasswordToggle>
               </InputWrapper>
-              <div style={{ textAlign: 'right' }}>
+              {passwordError && <FieldError>{passwordError}</FieldError>}
+              <div style={{ textAlign: 'right', marginTop: passwordError ? '0.5rem' : '0' }}>
                 <ForgotText to="/forgot-password">Forgot password?</ForgotText>
               </div>
             </FormGroup>
           )}
-          
+
           {step === 2 && (
             <FormGroup>
               <Label htmlFor="otp">One-Time Password (OTP)</Label>
               <InputWrapper>
-                <InputIcon>
+                <InputIcon style={{ color: otpError ? '#dc2626' : undefined }}>
                   <FiKey />
                 </InputIcon>
                 <Input
                   id="otp"
                   type="text"
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
+                  onChange={(e) => { setOtp(e.target.value); if (otpError) setOtpError(''); }}
                   placeholder="Enter 6-digit OTP"
                   maxLength={6}
-                  required
+                  $hasError={!!otpError}
                 />
               </InputWrapper>
+              {otpError && <FieldError>{otpError}</FieldError>}
             </FormGroup>
           )}
-          
+
           <LoginButton type="submit" disabled={loading}>
             {loading ? (<><Spinner />&nbsp;Processing...</>) : 'Continue'}
           </LoginButton>
         </Form>
-        
+
         {step === 2 && (
           <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-            <ResendLink type="button" onClick={handleResendOtp} disabled={resendTimer>0}>
-              {resendTimer>0 ? `Resend OTP (${resendTimer}s)` : 'Resend OTP'}
+            <ResendLink type="button" onClick={handleResendOtp} disabled={resendTimer > 0}>
+              {resendTimer > 0 ? `Resend OTP (${resendTimer}s)` : 'Resend OTP'}
             </ResendLink>
           </div>
         )}
-        
+
         <Divider>or</Divider>
-        
+
         <SignUpPrompt>
           Don't have an account? <SignUpLink to="/register">Sign up</SignUpLink>
         </SignUpPrompt>

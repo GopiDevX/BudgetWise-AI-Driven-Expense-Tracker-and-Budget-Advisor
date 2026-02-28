@@ -36,12 +36,12 @@ const Header = styled.div`
 const Title = styled.h1`
   font-size: 2rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
   margin: 0;
 `;
 
 const Subtitle = styled.p`
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin: 0.5rem 0 0 0;
 `;
 
@@ -69,9 +69,9 @@ const RefreshButton = styled.button`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: white;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-secondary, white);
+  color: var(--text-secondary, #64748b);
+  border: 1px solid var(--border-primary, #e2e8f0);
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
   font-size: 0.875rem;
@@ -81,7 +81,7 @@ const RefreshButton = styled.button`
   margin-right: 1rem;
 
   &:hover {
-    background: #f8fafc;
+    background: var(--bg-tertiary, #f8fafc);
     color: #3b82f6;
   }
 `;
@@ -94,17 +94,17 @@ const SummaryGrid = styled.div`
 `;
 
 const SummaryCard = styled.div`
-  background: white;
+  background: var(--bg-secondary, white);
   padding: 1.5rem;
   border-radius: 0.75rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
-  border-left: 4px solid ${props => props.color || '#e2e8f0'};
+  border: 1px solid var(--border-primary, #e2e8f0);
+  border-left: 4px solid ${props => props.color || 'var(--border-primary, #e2e8f0)'};
 `;
 
 const SummaryLabel = styled.div`
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin-bottom: 0.5rem;
   font-weight: 500;
 `;
@@ -112,7 +112,7 @@ const SummaryLabel = styled.div`
 const SummaryValue = styled.div`
   font-size: 1.875rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 `;
 
 const FilterBar = styled.div`
@@ -138,9 +138,9 @@ const FilterBar = styled.div`
 const FilterButton = styled.button`
   padding: 0.5rem 1rem;
   border-radius: 2rem;
-  border: 1px solid ${props => props.active ? props.activeColor || '#4f46e5' : '#e2e8f0'};
-  background: ${props => props.active ? (props.activeBg || '#eef2ff') : 'white'};
-  color: ${props => props.active ? (props.activeColor || '#4f46e5') : '#64748b'};
+  border: 1px solid ${props => props.active ? props.activeColor || '#4f46e5' : 'var(--border-primary, #e2e8f0)'};
+  background: ${props => props.active ? (props.activeBg || 'var(--bg-tertiary, #eef2ff)') : 'var(--bg-secondary, white)'};
+  color: ${props => props.active ? (props.activeColor || '#4f46e5') : 'var(--text-secondary, #64748b)'};
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -154,10 +154,10 @@ const FilterButton = styled.button`
 `;
 
 const TransactionsList = styled.div`
-  background: white;
+  background: var(--bg-secondary, white);
   border-radius: 0.75rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-primary, #e2e8f0);
   overflow: hidden;
 `;
 
@@ -174,7 +174,7 @@ const TransactionItem = styled.div`
   }
   
   &:hover {
-    background-color: #f8fafc;
+    background-color: var(--bg-tertiary, #f8fafc);
   }
   
   @media (max-width: 768px) {
@@ -211,12 +211,12 @@ const TransactionDetails = styled.div`
 
 const TransactionDescription = styled.div`
   font-weight: 500;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 `;
 
 const TransactionMeta = styled.div`
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   display: flex;
   gap: 0.5rem;
   align-items: center;
@@ -256,15 +256,15 @@ const ActionButton = styled.button`
   transition: all 0.2s;
   
   ${props => props.edit && `
-    background: #eff6ff;
+    background: var(--bg-primary, #eff6ff);
     color: #3b82f6;
-    &:hover { background: #dbeafe; }
+    &:hover { background: var(--bg-tertiary, #dbeafe); }
   `}
   
   ${props => props.delete && `
-    background: #fef2f2;
+    background: var(--bg-primary, #fef2f2);
     color: #ef4444;
-    &:hover { background: #fee2e2; }
+    &:hover { background: var(--bg-tertiary, #fee2e2); }
   `}
 `;
 
@@ -284,7 +284,7 @@ const Modal = styled.div`
 `;
 
 const ModalContent = styled.div`
-  background: white;
+  background: var(--bg-secondary, white);
   padding: 2rem;
   border-radius: 1rem;
   width: 90%;
@@ -292,6 +292,7 @@ const ModalContent = styled.div`
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-primary, transparent);
 `;
 
 const ModalHeader = styled.div`
@@ -300,13 +301,13 @@ const ModalHeader = styled.div`
   align-items: center;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--border-primary, #f1f5f9);
 `;
 
 const ModalTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
   margin: 0;
 `;
 
@@ -314,7 +315,7 @@ const CloseButton = styled.button`
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   cursor: pointer;
   padding: 0.25rem;
   border-radius: 0.375rem;
@@ -322,8 +323,8 @@ const CloseButton = styled.button`
   align-items: center;
   
   &:hover {
-    background: #f1f5f9;
-    color: #1e293b;
+    background: var(--bg-tertiary, #f1f5f9);
+    color: var(--text-primary, #1e293b);
   }
 `;
 
@@ -342,12 +343,14 @@ const FormGroup = styled.div`
 const Label = styled.label`
   font-size: 0.875rem;
   font-weight: 500;
-  color: #334155;
+  color: var(--text-primary, #334155);
 `;
 
 const Input = styled.input`
   padding: 0.75rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-secondary, #e2e8f0);
+  background: var(--bg-primary, white);
+  color: var(--text-primary, #0f172a);
   border-radius: 0.5rem;
   font-size: 0.875rem;
   transition: all 0.2s;
@@ -357,14 +360,19 @@ const Input = styled.input`
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
+
+  &::placeholder {
+    color: var(--text-tertiary, #94a3b8);
+  }
 `;
 
 const Select = styled.select`
   padding: 0.75rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-secondary, #e2e8f0);
+  background: var(--bg-primary, white);
+  color: var(--text-primary, #0f172a);
   border-radius: 0.5rem;
   font-size: 0.875rem;
-  background-color: white;
   
   &:focus {
     outline: none;
@@ -381,9 +389,9 @@ const TypeSelector = styled.div`
 const TypeButton = styled.button`
   flex: 1;
   padding: 0.75rem;
-  border: 1px solid ${props => props.$active ? 'transparent' : '#e2e8f0'};
-  background: ${props => props.$active ? (props.$txnType === 'income' ? '#dcfce7' : '#fee2e2') : 'white'};
-  color: ${props => props.$active ? (props.$txnType === 'income' ? '#166534' : '#991b1b') : '#64748b'};
+  border: 1px solid ${props => props.$active ? 'transparent' : 'var(--border-primary, #e2e8f0)'};
+  background: ${props => props.$active ? (props.$txnType === 'income' ? 'rgba(22, 163, 74, 0.1)' : 'rgba(239, 68, 68, 0.1)') : 'var(--bg-secondary, white)'};
+  color: ${props => props.$active ? (props.$txnType === 'income' ? '#16a34a' : '#ef4444') : 'var(--text-secondary, #64748b)'};
   border-radius: 0.5rem;
   font-weight: 500;
   cursor: pointer;
@@ -391,7 +399,7 @@ const TypeButton = styled.button`
   transition: all 0.2s;
   
   &:hover {
-    border-color: ${props => !props.$active && '#cbd5e1'};
+    border-color: ${props => !props.$active && 'var(--border-secondary, #cbd5e1)'};
   }
 `;
 
@@ -401,22 +409,22 @@ const FormActions = styled.div`
   justify-content: flex-end;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--border-primary, #f1f5f9);
 `;
 
 const SecondaryButton = styled.button`
   padding: 0.75rem 1.5rem;
-  border: 1px solid #e2e8f0;
-  background: white;
-  color: #475569;
+  border: 1px solid var(--border-secondary, #e2e8f0);
+  background: var(--bg-secondary, white);
+  color: var(--text-secondary, #475569);
   border-radius: 0.5rem;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   
   &:hover {
-    background: #f8fafc;
-    color: #1e293b;
+    background: var(--bg-tertiary, #f8fafc);
+    color: var(--text-primary, #1e293b);
   }
 `;
 
@@ -458,7 +466,7 @@ const ErrorMessage = styled.div`
 const EmptyState = styled.div`
   text-align: center;
   padding: 4rem 2rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
 `;
 
 const Transactions = () => {

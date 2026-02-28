@@ -21,12 +21,12 @@ const PageHeader = styled.div`
 const PageTitle = styled.h1`
   font-size: 1.75rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   margin: 0 0 0.25rem 0;
 `;
 
 const PageSubtitle = styled.p`
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   font-size: 0.95rem;
   margin: 0;
 `;
@@ -42,12 +42,12 @@ const SettingsLayout = styled.div`
 `;
 
 const Sidebar = styled.div`
-  background: white;
+  background: var(--bg-secondary, white);
   border-radius: 1rem;
   padding: 1rem;
   height: fit-content;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-  border: 1px solid #f1f5f9;
+  border: 1px solid var(--border-primary, #f1f5f9);
 `;
 
 const NavItem = styled.button`
@@ -57,8 +57,8 @@ const NavItem = styled.button`
   gap: 0.75rem;
   padding: 0.75rem 1rem;
   border: none;
-  background: ${props => props.active ? 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)' : 'transparent'};
-  color: ${props => props.active ? '#2563eb' : '#64748b'};
+  background: ${props => props.active ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%)' : 'transparent'};
+  color: ${props => props.active ? '#2563eb' : 'var(--text-secondary, #64748b)'};
   font-size: 0.9rem;
   font-weight: ${props => props.active ? '600' : '500'};
   border-radius: 0.75rem;
@@ -67,22 +67,22 @@ const NavItem = styled.button`
   text-align: left;
 
   &:hover {
-    background: ${props => props.active ? 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)' : '#f8fafc'};
+    background: ${props => props.active ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%)' : 'var(--bg-tertiary, #f8fafc)'};
   }
 `;
 
 const ContentArea = styled.div`
-  background: white;
+  background: var(--bg-secondary, white);
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-  border: 1px solid #f1f5f9;
+  border: 1px solid var(--border-primary, #f1f5f9);
 `;
 
 const SectionTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   margin: 0 0 1.5rem 0;
 `;
 
@@ -94,22 +94,28 @@ const Label = styled.label`
   display: block;
   font-size: 0.9rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--text-primary, #374151);
   margin-bottom: 0.5rem;
 `;
 
 const Input = styled.input`
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-secondary, #e2e8f0);
+  background: var(--bg-primary, white);
+  color: var(--text-primary, #0f172a);
   border-radius: 0.75rem;
   font-size: 0.9rem;
   transition: all 0.2s;
-
+  
   &:focus {
     outline: none;
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  &::placeholder {
+    color: var(--text-tertiary, #94a3b8);
   }
 `;
 
@@ -141,17 +147,17 @@ const CameraButton = styled.button`
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: white;
-  border: 2px solid #f1f5f9;
+  background: var(--bg-secondary, white);
+  border: 2px solid var(--border-primary, #f1f5f9);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   transition: all 0.2s;
 
   &:hover {
-    background: #f8fafc;
+    background: var(--bg-tertiary, #f8fafc);
     color: #3b82f6;
   }
 `;
@@ -160,13 +166,13 @@ const AvatarInfo = styled.div``;
 
 const AvatarTitle = styled.p`
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   margin: 0 0 0.25rem 0;
 `;
 
 const AvatarSubtitle = styled.p`
   font-size: 0.85rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin: 0;
 `;
 
@@ -180,12 +186,12 @@ const FormRow = styled.div`
   }
 `;
 
-const Toggle = styled.label`
+const Toggle = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 1rem;
-  background: #f8fafc;
+  background: var(--bg-tertiary, #f8fafc);
   border-radius: 0.75rem;
   cursor: pointer;
   margin-bottom: 1rem;
@@ -195,13 +201,13 @@ const ToggleInfo = styled.div``;
 
 const ToggleTitle = styled.p`
   font-weight: 500;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   margin: 0 0 0.25rem 0;
 `;
 
 const ToggleDescription = styled.p`
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin: 0;
 `;
 
@@ -252,7 +258,7 @@ const DangerButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: white;
+  background: var(--bg-secondary, white);
   border: 1px solid #ef4444;
   border-radius: 0.75rem;
   color: #ef4444;

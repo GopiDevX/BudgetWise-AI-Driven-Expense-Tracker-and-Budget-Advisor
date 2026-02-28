@@ -38,7 +38,7 @@ const WelcomeSection = styled.div`
 const WelcomeTitle = styled.h1`
   font-size: 2rem;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   margin-bottom: 0.5rem;
   letter-spacing: -0.02em;
 `;
@@ -61,16 +61,16 @@ const IconButton = styled.button`
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-secondary, white);
+  border: 1px solid var(--border-primary, #e2e8f0);
   border-radius: 0.75rem;
   cursor: pointer;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   transition: all 0.2s;
 
   &:hover {
-    background: #f8fafc;
-    color: #3b82f6;
+    background: var(--bg-tertiary, #f8fafc);
+    color: var(--accent-primary, #3b82f6);
   }
 `;
 
@@ -79,21 +79,21 @@ const DropdownButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 1rem;
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-secondary, white);
+  border: 1px solid var(--border-primary, #e2e8f0);
   border-radius: 0.75rem;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   transition: all 0.2s;
 
   &:hover {
-    background: #f8fafc;
+    background: var(--bg-tertiary, #f8fafc);
   }
 
   svg {
-    color: #64748b;
+    color: var(--text-secondary, #64748b);
   }
 `;
 
@@ -126,20 +126,14 @@ const StatsGrid = styled.div`
 `;
 
 const StatCard = styled.div`
-  background: var(--card-bg, white);
+  background: var(--bg-secondary, white);
   border-radius: 1rem;
   padding: 1.5rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   transition: transform 0.2s, box-shadow 0.2s;
-  border: 1px solid var(--border-color, #e2e8f0);
+  border: 1px solid var(--border-primary, #e2e8f0);
   position: relative;
   overflow: hidden;
-
-  [data-theme='dark'] & {
-    background: #1e293b;
-    border-color: #334155;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-  }
 
   &::before {
     content: '';
@@ -176,11 +170,11 @@ const StatIcon = styled.div`
   justify-content: center;
   background: ${props => {
     switch (props.$variant) {
-      case 'primary': return '#eff6ff';
-      case 'success': return '#ecfdf5';
-      case 'warning': return '#fffbeb';
-      case 'danger': return '#fef2f2';
-      default: return '#f1f5f9';
+      case 'primary': return 'rgba(59, 130, 246, 0.1)';
+      case 'success': return 'rgba(16, 185, 129, 0.1)';
+      case 'warning': return 'rgba(245, 158, 11, 0.1)';
+      case 'danger': return 'rgba(239, 68, 68, 0.1)';
+      default: return 'var(--bg-tertiary, #f1f5f9)';
     }
   }};
   color: ${props => {
@@ -189,21 +183,9 @@ const StatIcon = styled.div`
       case 'success': return '#10b981';
       case 'warning': return '#f59e0b';
       case 'danger': return '#ef4444';
-      default: return '#64748b';
+      default: return 'var(--text-tertiary, #64748b)';
     }
   }};
-
-  [data-theme='dark'] & {
-    background: ${props => {
-    switch (props.$variant) {
-      case 'primary': return 'rgba(59, 130, 246, 0.1)';
-      case 'success': return 'rgba(16, 185, 129, 0.1)';
-      case 'warning': return 'rgba(245, 158, 11, 0.1)';
-      case 'danger': return 'rgba(239, 68, 68, 0.1)';
-      default: return 'rgba(100, 116, 139, 0.1)';
-    }
-  }};
-  }
 `;
 
 const StatInfo = styled.div`
@@ -215,10 +197,6 @@ const StatTitle = styled.h3`
   color: var(--text-secondary, #64748b);
   margin: 0 0 0.5rem 0;
   font-weight: 500;
-
-  [data-theme='dark'] & {
-    color: #94a3b8;
-  }
 `;
 
 const StatValue = styled.p`
@@ -227,10 +205,6 @@ const StatValue = styled.p`
   margin: 0;
   font-weight: 700;
   letter-spacing: -0.5px;
-
-  [data-theme='dark'] & {
-    color: #f1f5f9;
-  }
 `;
 
 const StatChange = styled.span`
@@ -301,26 +275,24 @@ const AlertItem = styled.div`
   padding: 0.75rem 1rem;
   background: ${props => props.status === 'over' ? '#fef2f2' : '#fffbeb'};
   border-radius: 0.75rem;
-  border: 1px solid ${props => props.status === 'over' ? '#fecaca' : '#fde68a'};
-  transition: transform 0.2s;
+  border: 1px solid ${props => props.status === 'over' ? '#fee2e2' : '#fef3c7'};
+  transition: all 0.2s;
 
   &:hover {
     transform: translateX(4px);
   }
 
   [data-theme='dark'] & {
-    background: ${props => props.status === 'over' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)'};
-    border-color: ${props => props.status === 'over' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(245, 158, 11, 0.3)'};
+    color: ${props => props.status === 'over' ? '#f87171' : '#fbbf24'};
+    background: ${props => props.status === 'over' ? 'rgba(248, 113, 113, 0.15)' : 'rgba(251, 191, 36, 0.15)'};
+    border-color: ${props => props.status === 'over' ? 'rgba(248, 113, 113, 0.2)' : 'rgba(251, 191, 36, 0.2)'};
   }
 `;
 
 const AlertCategory = styled.span`
-  font-weight: 600;
-  color: #1e293b;
-
-  [data-theme='dark'] & {
-    color: #f1f5f9;
-  }
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-primary, #1e293b);
 `;
 
 const AlertMessage = styled.span`
@@ -334,13 +306,13 @@ const AlertMessage = styled.span`
 `;
 
 const ChartCard = styled.div`
-  background: white;
+  background: var(--bg-secondary, white);
   border-radius: 1.25rem;
   padding: 1.75rem;
   box-shadow: 
     0 4px 6px -1px rgba(0, 0, 0, 0.05),
     0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(255,255,255,0.5);
+  border: 1px solid var(--border-primary, rgba(255,255,255,0.5));
 `;
 
 const ChartHeader = styled.div`
@@ -367,17 +339,11 @@ const ChartContainer = styled.div`
 `;
 
 const TransactionsSection = styled.div`
-  background: var(--card-bg, white);
+  background: var(--bg-secondary, white);
   border-radius: 1rem;
   padding: 1.5rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--border-color, #e2e8f0);
-
-  [data-theme='dark'] & {
-    background: #1e293b;
-    border-color: #334155;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-  }
+  border: 1px solid var(--border-primary, #e2e8f0);
 `;
 
 const SectionHeader = styled.div`
@@ -423,25 +389,15 @@ const TransactionItem = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 1rem;
-  background: var(--bg-secondary, #f8fafc);
+  background: var(--bg-primary, #f8fafc);
   border-radius: 0.75rem;
   transition: all 0.2s;
-  border: 1px solid transparent;
-
-  [data-theme='dark'] & {
-    background: #0f172a;
-    border-color: #334155;
-  }
+  border: 1px solid var(--border-primary, transparent);
 
   &:hover {
     transform: translateX(4px);
-    background: var(--hover-bg, #f1f5f9);
-    border-color: #cbd5e1;
-
-    [data-theme='dark'] & {
-      background: #1e293b;
-      border-color: #475569;
-    }
+    background: var(--bg-tertiary, #f1f5f9);
+    border-color: var(--border-secondary, #cbd5e1);
   }
 `;
 
@@ -453,7 +409,7 @@ const TransactionIcon = styled.div`
   align-items: center;
   justify-content: center;
   font-size: 1.25rem;
-  background: ${props => props.type === 'income' ? '#ecfdf5' : '#fef2f2'};
+  background: ${props => props.type === 'income' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)'};
   color: ${props => props.type === 'income' ? '#10b981' : '#ef4444'};
 
   [data-theme='dark'] & {
@@ -494,8 +450,8 @@ const TransactionTitle = styled.h4`
 const TransactionCategory = styled.p`
   font-size: 0.875rem;
   font-weight: 400;
-  color: #64748b;
-  margin-bottom: 0.5rem;
+  color: var(--text-secondary, #64748b);
+  margin: 0;
 `;
 
 const TransactionMeta = styled.div`
@@ -512,14 +468,14 @@ const TransactionMeta = styled.div`
 const TransactionDate = styled.p`
   font-size: 0.75rem;
   font-weight: 400;
-  color: #94a3b8;
+  color: var(--text-tertiary, #94a3b8);
   margin: 0;
 `;
 
 const TransactionActions = styled.div`
   display: flex;
   gap: 0.5rem;
-  margin-left: 1rem;
+  margin-right: 1.5rem;
 `;
 
 const ActionButton = styled.button`
@@ -531,10 +487,10 @@ const ActionButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
   
   &:hover {
-    background-color: #f1f5f9;
+    background: var(--bg-tertiary, #f1f5f9);
   }
 `;
 
@@ -547,19 +503,19 @@ const DeleteButton = styled(ActionButton)`
 `;
 
 const TransactionAmount = styled.div`
-  font-weight: 600;
-  color: ${props => props.type === 'income' ? '#059669' : '#dc2626'};
-  margin-left: auto;
-  white-space: nowrap;
+  font-weight: 700;
+  color: ${props => props.type === 'income' ? '#10b981' : '#ef4444'};
+  text-align: right;
+  min-width: 100px;
 `;
 
 const NoTransactions = styled.div`
   text-align: center;
-  padding: 2rem;
-  color: #64748b;
-  font-style: italic;
-  width: 100%;
-  grid-column: 1 / -1;
+  padding: 3rem;
+  color: var(--text-secondary, #64748b);
+  background: var(--bg-tertiary, #f8fafc);
+  border-radius: 1rem;
+  border: 2px dashed var(--border-primary, #e2e8f0);
 `;
 
 const AddButton = styled.button`
@@ -581,21 +537,21 @@ const AddButton = styled.button`
   }
 `;
 
-const ProfileButton = styled.button`
+const ProfileButton = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 0.375rem 1rem 0.375rem 0.375rem;
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-secondary, white);
+  border: 1px solid var(--border-primary, #e2e8f0);
   border-radius: 2rem;
   cursor: pointer;
   transition: all 0.2s;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
 
   &:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
+    background: var(--bg-tertiary, #f8fafc);
+    border-color: var(--border-secondary, #cbd5e1);
     transform: translateY(-1px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   }
@@ -621,7 +577,7 @@ const ProfileName = styled.span`
 `;
 
 // Mock data for charts
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#FF6B6B', '#4ECDC4', '#45B7D1', '#F9C74F', '#90BE6D'];
+const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316', '#14b8a6', '#64748b'];
 
 const Dashboard = () => {
   // Set page title
@@ -720,7 +676,7 @@ const Dashboard = () => {
       if (amount > currentSavings) {
         return {
           valid: false,
-          message: `Insufficient balance on ${checkDate.toLocaleDateString()}. Available: ${currencySymbol}${currentSavings.toFixed(2)}.`
+          message: `Insufficient balance on ${checkDate.toLocaleDateString()}.Available: ${currencySymbol}${currentSavings.toFixed(2)}.`
         };
       }
     }
@@ -1197,7 +1153,7 @@ const Dashboard = () => {
                   <AlertMessage status={alert.status}>
                     {alert.status === 'over'
                       ? `${currencySymbol}${Math.abs(alert.remaining).toFixed(0)} over budget`
-                      : `${currencySymbol}${alert.remaining.toFixed(0)} remaining (${alert.percentage.toFixed(0)}% used)`}
+                      : `${currencySymbol}${alert.remaining.toFixed(0)} remaining(${alert.percentage.toFixed(0)} % used)`}
                   </AlertMessage>
                 </AlertItem>
               ))}
@@ -1233,7 +1189,7 @@ const Dashboard = () => {
                     axisLine={false}
                     tickLine={false}
                     tick={{ fill: isDarkMode ? '#94a3b8' : '#64748b', fontSize: 12 }}
-                    tickFormatter={(value) => `${currencySymbol}${value}`}
+                    tickFormatter={(value) => `${currencySymbol}${value} `}
                   />
                   <Tooltip
                     contentStyle={{
@@ -1275,10 +1231,10 @@ const Dashboard = () => {
                     dataKey="value"
                     nameKey="name"
                     labelLine={false}
-                    label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                    label={({ name, percent }) => `${(percent * 100).toFixed(0)}% `}
                   >
                     {categoryData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell key={`cell - ${index} `} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip

@@ -30,12 +30,12 @@ const Header = styled.div`
 const Title = styled.h1`
   font-size: 2rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
   margin: 0;
 `;
 
 const Subtitle = styled.p`
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin: 0.5rem 0 0 0;
 `;
 
@@ -63,9 +63,9 @@ const RefreshButton = styled.button`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: white;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-secondary, white);
+  color: var(--text-secondary, #64748b);
+  border: 1px solid var(--border-primary, #e2e8f0);
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
   font-size: 0.875rem;
@@ -75,7 +75,7 @@ const RefreshButton = styled.button`
   margin-right: 1rem;
 
   &:hover {
-    background: #f8fafc;
+    background: var(--bg-tertiary, #f8fafc);
     color: #3b82f6;
   }
 `;
@@ -88,30 +88,30 @@ const SummaryGrid = styled.div`
 `;
 
 const SummaryCard = styled.div`
-  background: white;
+  background: var(--bg-secondary, white);
   padding: 1.5rem;
   border-radius: 0.75rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-primary, #e2e8f0);
 `;
 
 const SummaryLabel = styled.div`
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin-bottom: 0.5rem;
 `;
 
 const SummaryValue = styled.div`
   font-size: 1.875rem;
   font-weight: 700;
-  color: ${props => props.expense ? '#dc2626' : '#1e293b'};
+  color: ${props => props.expense ? '#dc2626' : 'var(--text-primary, #1e293b)'};
 `;
 
 const ExpenseList = styled.div`
-  background: white;
+  background: var(--bg-secondary, white);
   border-radius: 0.75rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-primary, #e2e8f0);
   overflow: hidden;
 `;
 
@@ -120,7 +120,7 @@ const ExpenseItem = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--border-primary, #f1f5f9);
   
   &:last-child {
     border-bottom: none;
@@ -139,7 +139,7 @@ const ExpenseDetails = styled.div`
 
 const ExpenseDescription = styled.div`
   font-weight: 500;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
   margin-bottom: 0.25rem;
 `;
 
@@ -147,7 +147,7 @@ const ExpenseMeta = styled.div`
   display: flex;
   gap: 1rem;
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
 `;
 
 const ExpenseAmount = styled.div`
@@ -211,13 +211,14 @@ const Modal = styled.div`
 `;
 
 const ModalContent = styled.div`
-  background: white;
+  background: var(--bg-secondary, white);
   padding: 2rem;
   border-radius: 1rem;
   width: 90%;
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
+  border: 1px solid var(--border-primary, transparent);
 `;
 
 const ModalHeader = styled.div`
@@ -230,7 +231,7 @@ const ModalHeader = styled.div`
 const ModalTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
   margin: 0;
 `;
 
@@ -238,12 +239,12 @@ const CloseButton = styled.button`
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   cursor: pointer;
   padding: 0;
   
   &:hover {
-    color: #1e293b;
+    color: var(--text-primary, #1e293b);
   }
 `;
 
@@ -262,12 +263,14 @@ const FormGroup = styled.div`
 const Label = styled.label`
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--text-primary, #374151);
 `;
 
 const Input = styled.input`
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-secondary, #d1d5db);
+  background: var(--bg-primary, white);
+  color: var(--text-primary, #0f172a);
   border-radius: 0.375rem;
   font-size: 0.875rem;
   
@@ -276,11 +279,17 @@ const Input = styled.input`
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
+
+  &::placeholder {
+    color: var(--text-tertiary, #94a3b8);
+  }
 `;
 
 const Select = styled.select`
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-secondary, #d1d5db);
+  background: var(--bg-primary, white);
+  color: var(--text-primary, #0f172a);
   border-radius: 0.375rem;
   font-size: 0.875rem;
   
@@ -300,16 +309,16 @@ const FormActions = styled.div`
 
 const SecondaryButton = styled.button`
   padding: 0.75rem 1.5rem;
-  border: 1px solid #d1d5db;
-  background: white;
-  color: #374151;
+  border: 1px solid var(--border-secondary, #d1d5db);
+  background: var(--bg-secondary, white);
+  color: var(--text-primary, #374151);
   border-radius: 0.375rem;
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
   
   &:hover {
-    background: #f9fafb;
+    background: var(--bg-tertiary, #f9fafb);
   }
 `;
 
@@ -348,7 +357,7 @@ const ErrorMessage = styled.div`
 const EmptyState = styled.div`
   text-align: center;
   padding: 3rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
 `;
 
 const Expenses = () => {

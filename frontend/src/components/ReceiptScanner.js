@@ -18,7 +18,7 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContent = styled.div`
-  background: white;
+  background: var(--bg-secondary, white);
   border-radius: 1rem;
   padding: 2rem;
   max-width: 500px;
@@ -26,6 +26,7 @@ const ModalContent = styled.div`
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-primary, transparent);
 `;
 
 const ModalHeader = styled.div`
@@ -38,7 +39,7 @@ const ModalHeader = styled.div`
 const ModalTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   margin: 0;
 `;
 
@@ -46,7 +47,7 @@ const CloseButton = styled.button`
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   cursor: pointer;
   padding: 0.25rem;
   display: flex;
@@ -56,23 +57,23 @@ const CloseButton = styled.button`
   transition: all 0.2s;
 
   &:hover {
-    background: #f1f5f9;
-    color: #0f172a;
+    background: var(--bg-tertiary, #f1f5f9);
+    color: var(--text-primary, #0f172a);
   }
 `;
 
 const UploadArea = styled.div`
-  border: 2px dashed ${props => props.$isDragging ? '#6366f1' : '#e2e8f0'};
+  border: 2px dashed ${props => props.$isDragging ? '#6366f1' : 'var(--border-primary, #e2e8f0)'};
   border-radius: 1rem;
   padding: 2rem;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s;
-  background: ${props => props.$isDragging ? '#eef2ff' : '#f8fafc'};
+  background: ${props => props.$isDragging ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-tertiary, #f8fafc)'};
 
   &:hover {
     border-color: #6366f1;
-    background: #eef2ff;
+    background: rgba(99, 102, 241, 0.1);
   }
 `;
 
@@ -89,7 +90,7 @@ const UploadIcon = styled.div`
 `;
 
 const UploadText = styled.p`
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin: 0;
   font-size: 0.95rem;
 `;
@@ -112,7 +113,7 @@ const ProgressContainer = styled.div`
 
 const ProgressBar = styled.div`
   height: 8px;
-  background: #e2e8f0;
+  background: var(--bg-tertiary, #e2e8f0);
   border-radius: 4px;
   overflow: hidden;
   margin-bottom: 0.5rem;
@@ -127,7 +128,7 @@ const ProgressFill = styled.div`
 `;
 
 const ProgressText = styled.p`
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   font-size: 0.85rem;
   text-align: center;
   margin: 0;
@@ -138,10 +139,11 @@ const ProgressText = styled.p`
 `;
 
 const ResultSection = styled.div`
-  background: #f8fafc;
+  background: var(--bg-tertiary, #f8fafc);
   border-radius: 0.75rem;
   padding: 1rem;
   margin-top: 1rem;
+  border: 1px solid var(--border-primary, transparent);
 `;
 
 const ResultItem = styled.div`
@@ -149,7 +151,7 @@ const ResultItem = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border-primary, #e2e8f0);
 
   &:last-child {
     border-bottom: none;
@@ -157,12 +159,12 @@ const ResultItem = styled.div`
 `;
 
 const ResultLabel = styled.span`
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   font-size: 0.9rem;
 `;
 
 const ResultValue = styled.span`
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   font-weight: 600;
   font-size: 0.95rem;
 `;
@@ -205,12 +207,12 @@ const PrimaryButton = styled(Button)`
 `;
 
 const SecondaryButton = styled(Button)`
-  background: white;
-  border: 1px solid #e2e8f0;
-  color: #64748b;
+  background: var(--bg-secondary, white);
+  border: 1px solid var(--border-secondary, #e2e8f0);
+  color: var(--text-secondary, #64748b);
 
   &:hover {
-    background: #f8fafc;
+    background: var(--bg-tertiary, #f8fafc);
   }
 `;
 

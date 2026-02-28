@@ -46,22 +46,22 @@ const AiAvatar = styled.div`
 const PageTitle = styled.h1`
   font-size: 1.75rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   margin: 0 0 0.5rem 0;
 `;
 
 const PageSubtitle = styled.p`
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   font-size: 0.95rem;
   margin: 0;
 `;
 
 const ChatContainer = styled.div`
   flex: 1;
-  background: white;
+  background: var(--bg-secondary, white);
   border-radius: 1.5rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  border: 1px solid #f1f5f9;
+  border: 1px solid var(--border-primary, #f1f5f9);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -99,8 +99,8 @@ const MessageBubble = styled.div`
   max-width: 70%;
   padding: 0.875rem 1rem;
   border-radius: ${props => props.isUser ? '1rem 1rem 0.25rem 1rem' : '1rem 1rem 1rem 0.25rem'};
-  background: ${props => props.isUser ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' : '#f8fafc'};
-  color: ${props => props.isUser ? 'white' : '#0f172a'};
+  background: ${props => props.isUser ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' : 'var(--bg-tertiary, #f8fafc)'};
+  color: ${props => props.isUser ? 'white' : 'var(--text-primary, #0f172a)'};
   font-size: 0.9rem;
   line-height: 1.5;
 `;
@@ -124,7 +124,7 @@ const TypingIndicator = styled.div`
 
 const InputArea = styled.div`
   padding: 1rem 1.5rem;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--border-primary, #f1f5f9);
   display: flex;
   gap: 0.75rem;
 `;
@@ -132,7 +132,9 @@ const InputArea = styled.div`
 const ChatInput = styled.input`
   flex: 1;
   padding: 0.875rem 1rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-secondary, #e2e8f0);
+  background: var(--bg-primary, white);
+  color: var(--text-primary, #0f172a);
   border-radius: 0.75rem;
   font-size: 0.9rem;
   outline: none;
@@ -144,7 +146,7 @@ const ChatInput = styled.input`
   }
 
   &::placeholder {
-    color: #94a3b8;
+    color: var(--text-tertiary, #94a3b8);
   }
 `;
 
@@ -178,21 +180,21 @@ const SuggestionChips = styled.div`
   flex-wrap: wrap;
   gap: 0.5rem;
   padding: 1rem 1.5rem;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--border-primary, #f1f5f9);
 `;
 
 const Chip = styled.button`
   padding: 0.5rem 1rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-tertiary, #f8fafc);
+  border: 1px solid var(--border-secondary, #e2e8f0);
   border-radius: 2rem;
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    background: #eff6ff;
+    background: var(--bg-secondary, #eff6ff);
     border-color: #3b82f6;
     color: #3b82f6;
   }
@@ -207,13 +209,13 @@ const renderLine = (line, i) => {
   if (trimmed.includes('----------------')) {
     return (
       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '8px 0' }}>
-        <div style={{ flex: 1, borderTop: '1.5px solid rgba(15, 23, 42, 0.1)' }} />
+        <div style={{ flex: 1, borderTop: '1.5px solid var(--border-primary, rgba(15, 23, 42, 0.1))' }} />
         {trimmed.replace(/-+/g, '').trim() && (
           <span style={{ fontWeight: 600, fontSize: '0.75rem', color: '#6366f1', textTransform: 'uppercase', letterSpacing: '1px' }}>
             {trimmed.replace(/-+/g, '').trim()}
           </span>
         )}
-        <div style={{ flex: 1, borderTop: '1.5px solid rgba(15, 23, 42, 0.1)' }} />
+        <div style={{ flex: 1, borderTop: '1.5px solid var(--border-primary, rgba(15, 23, 42, 0.1))' }} />
       </div>
     );
   }
@@ -245,16 +247,16 @@ const renderLine = (line, i) => {
 
   // Section Headers
   if ('📊⚠️🎯📌💡📈📉🧠'.includes(firstChar) || trimmed.match(/^(💰|💸|💵)/u)) {
-    return <div key={i} style={{ fontWeight: 600, fontSize: '0.875rem', lineHeight: 1.8, color: '#0f172a', marginTop: '12px', marginBottom: '4px' }}>{trimmed}</div>;
+    return <div key={i} style={{ fontWeight: 600, fontSize: '0.875rem', lineHeight: 1.8, color: 'var(--text-primary, #0f172a)', marginTop: '12px', marginBottom: '4px' }}>{trimmed}</div>;
   }
 
   // Bullets
   if (trimmed.startsWith('•')) {
-    return <div key={i} style={{ paddingLeft: '0.8rem', fontSize: '0.875rem', lineHeight: 1.6, color: '#334155', display: 'flex', gap: '8px' }}>{trimmed}</div>;
+    return <div key={i} style={{ paddingLeft: '0.8rem', fontSize: '0.875rem', lineHeight: 1.6, color: 'var(--text-secondary, #334155)', display: 'flex', gap: '8px' }}>{trimmed}</div>;
   }
 
   // Normal Text
-  return <div key={i} style={{ fontSize: '0.875rem', lineHeight: 1.6, color: '#1e293b' }}>{line}</div>;
+  return <div key={i} style={{ fontSize: '0.875rem', lineHeight: 1.6, color: 'var(--text-primary, #1e293b)' }}>{line}</div>;
 };
 
 // Splits backend response on \n, literal \n, and emoji markers to ensure line-by-line rendering

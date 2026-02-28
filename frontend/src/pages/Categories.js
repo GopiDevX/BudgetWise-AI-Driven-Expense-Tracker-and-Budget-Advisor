@@ -22,12 +22,12 @@ const TitleSection = styled.div``;
 const PageTitle = styled.h1`
   font-size: 1.75rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   margin: 0 0 0.25rem 0;
 `;
 
 const PageSubtitle = styled.p`
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   font-size: 0.95rem;
   margin: 0;
 `;
@@ -57,7 +57,7 @@ const TabsContainer = styled.div`
   display: flex;
   gap: 0.5rem;
   margin-bottom: 2rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border-primary, #e2e8f0);
   padding-bottom: 1rem;
 `;
 
@@ -65,7 +65,7 @@ const Tab = styled.button`
   padding: 0.625rem 1.25rem;
   border: none;
   background: ${props => props.active ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' : 'transparent'};
-  color: ${props => props.active ? 'white' : '#64748b'};
+  color: ${props => props.active ? 'white' : 'var(--text-secondary, #64748b)'};
   font-weight: 500;
   font-size: 0.9rem;
   border-radius: 0.75rem;
@@ -73,7 +73,7 @@ const Tab = styled.button`
   transition: all 0.2s;
 
   &:hover {
-    background: ${props => props.active ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' : '#f1f5f9'};
+    background: ${props => props.active ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' : 'var(--bg-tertiary, #f1f5f9)'};
   }
 `;
 
@@ -84,7 +84,7 @@ const CategoriesGrid = styled.div`
 `;
 
 const CategoryCard = styled.div`
-  background: white;
+  background: var(--bg-secondary, white);
   border-radius: 1rem;
   padding: 1.25rem;
   display: flex;
@@ -92,7 +92,7 @@ const CategoryCard = styled.div`
   align-items: center;
   text-align: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-  border: 1px solid #f1f5f9;
+  border: 1px solid var(--border-primary, #f1f5f9);
   transition: all 0.2s;
   cursor: pointer;
   position: relative;
@@ -111,21 +111,25 @@ const CategoryIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${props => props.bg || '#eff6ff'};
+  background: ${props => props.bg || 'rgba(59, 130, 246, 0.1)'};
   color: ${props => props.color || '#3b82f6'};
   margin-bottom: 1rem;
+
+  [data-theme='dark'] & {
+    background: rgba(59, 130, 246, 0.1);
+  }
 `;
 
 const CategoryName = styled.h3`
   font-size: 0.95rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   margin: 0 0 0.25rem 0;
 `;
 
 const CategoryCount = styled.p`
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: var(--text-tertiary, #94a3b8);
   margin: 0;
 `;
 
@@ -145,15 +149,15 @@ const CategoryActions = styled.div`
 
 const ActionBtn = styled.button`
   padding: 0.25rem;
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-secondary, white);
+  border: 1px solid var(--border-primary, #e2e8f0);
   border-radius: 0.5rem;
   cursor: pointer;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   transition: all 0.2s;
 
   &:hover {
-    background: #f8fafc;
+    background: var(--bg-tertiary, #f8fafc);
     color: ${props => props.danger ? '#ef4444' : '#3b82f6'};
   }
 `;

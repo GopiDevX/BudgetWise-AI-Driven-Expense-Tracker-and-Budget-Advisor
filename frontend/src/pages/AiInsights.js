@@ -23,12 +23,12 @@ const PageHeader = styled.div`
 const PageTitle = styled.h1`
   font-size: 1.75rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   margin: 0 0 0.25rem 0;
 `;
 
 const PageSubtitle = styled.p`
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   font-size: 0.95rem;
   margin: 0;
 `;
@@ -40,11 +40,11 @@ const InsightsGrid = styled.div`
 `;
 
 const InsightCard = styled.div`
-  background: white;
+  background: var(--bg-secondary, white);
   border-radius: 1rem;
   padding: 1.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-  border: 1px solid #f1f5f9;
+  border: 1px solid var(--border-primary, #f1f5f9);
   border-left: 4px solid ${props => props.color || '#3b82f6'};
   transition: all 0.2s;
 
@@ -71,6 +71,10 @@ const InsightIcon = styled.div`
   background: ${props => props.bg || '#eff6ff'};
   color: ${props => props.color || '#3b82f6'};
   flex-shrink: 0;
+
+  [data-theme='dark'] & {
+    background: rgba(59, 130, 246, 0.1);
+  }
 `;
 
 const InsightMeta = styled.div`
@@ -91,13 +95,13 @@ const InsightType = styled.span`
 const InsightTitle = styled.h3`
   font-size: 1.1rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   margin: 0.75rem 0 0.5rem 0;
 `;
 
 const InsightDescription = styled.p`
   font-size: 0.9rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin: 0;
   line-height: 1.5;
 `;

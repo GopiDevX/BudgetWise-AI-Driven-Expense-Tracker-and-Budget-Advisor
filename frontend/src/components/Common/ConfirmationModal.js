@@ -32,13 +32,14 @@ const Overlay = styled.div`
 `;
 
 const ModalCard = styled.div`
-  background: white;
+  background: var(--bg-secondary, white);
   width: 100%;
   max-width: 400px;
   border-radius: 1.25rem;
   box-shadow: 
     0 25px 50px -12px rgba(0, 0, 0, 0.25),
     0 0 0 1px rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-primary, transparent);
   overflow: hidden;
   animation: ${slideUp} 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
@@ -58,8 +59,8 @@ const IconWrapper = styled.div`
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 50%;
-  background-color: ${props => props.type === 'danger' ? '#fee2e2' : '#dbeafe'};
-  color: ${props => props.type === 'danger' ? '#dc2626' : '#2563eb'};
+  background-color: ${props => props.type === 'danger' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(37, 99, 235, 0.1)'};
+  color: ${props => props.type === 'danger' ? '#ef4444' : '#3b82f6'};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -70,13 +71,13 @@ const IconWrapper = styled.div`
 const Title = styled.h3`
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   margin: 0;
 `;
 
 const Message = styled.p`
   font-size: 1rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin: 0;
   line-height: 1.5;
 `;
@@ -105,12 +106,12 @@ const Button = styled.button`
 `;
 
 const CancelButton = styled(Button)`
-  background-color: #f1f5f9;
-  color: #475569;
+  background-color: var(--bg-tertiary, #f1f5f9);
+  color: var(--text-secondary, #475569);
   
   &:hover:not(:disabled) {
-    background-color: #e2e8f0;
-    color: #1e293b;
+    background-color: var(--bg-primary, #e2e8f0);
+    color: var(--text-primary, #1e293b);
   }
 `;
 
@@ -131,44 +132,44 @@ const ConfirmButton = styled(Button)`
 `;
 
 const ConfirmationModal = ({
-    isOpen,
-    onClose,
-    onConfirm,
-    title = 'Are you sure?',
-    message = 'This action cannot be undone.',
-    confirmText = 'Confirm',
-    cancelText = 'Cancel',
-    type = 'danger', // 'danger' or 'info'
-    isLoading = false
+  isOpen,
+  onClose,
+  onConfirm,
+  title = 'Are you sure?',
+  message = 'This action cannot be undone.',
+  confirmText = 'Confirm',
+  cancelText = 'Cancel',
+  type = 'danger', // 'danger' or 'info'
+  isLoading = false
 }) => {
-    if (!isOpen) return null;
+  if (!isOpen) return null;
 
-    return (
-        <Overlay onClick={isLoading ? null : onClose}>
-            <ModalCard onClick={e => e.stopPropagation()}>
-                <ModalContent>
-                    <IconWrapper type={type}>
-                        <FiAlertTriangle />
-                    </IconWrapper>
-                    <Title>{title}</Title>
-                    <Message>{message}</Message>
-                </ModalContent>
+  return (
+    <Overlay onClick={isLoading ? null : onClose}>
+      <ModalCard onClick={e => e.stopPropagation()}>
+        <ModalContent>
+          <IconWrapper type={type}>
+            <FiAlertTriangle />
+          </IconWrapper>
+          <Title>{title}</Title>
+          <Message>{message}</Message>
+        </ModalContent>
 
-                <ButtonGroup>
-                    <CancelButton onClick={onClose} disabled={isLoading}>
-                        {cancelText}
-                    </CancelButton>
-                    <ConfirmButton
-                        onClick={onConfirm}
-                        type={type}
-                        disabled={isLoading}
-                    >
-                        {isLoading ? 'Processing...' : confirmText}
-                    </ConfirmButton>
-                </ButtonGroup>
-            </ModalCard>
-        </Overlay>
-    );
+        <ButtonGroup>
+          <CancelButton onClick={onClose} disabled={isLoading}>
+            {cancelText}
+          </CancelButton>
+          <ConfirmButton
+            onClick={onConfirm}
+            type={type}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Processing...' : confirmText}
+          </ConfirmButton>
+        </ButtonGroup>
+      </ModalCard>
+    </Overlay>
+  );
 };
 
 export default ConfirmationModal;
