@@ -254,7 +254,7 @@ const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
   const menuItems = [
     { icon: FiHome, label: 'Dashboard', path: '/dashboard' },
     { icon: FiCreditCard, label: 'Accounts', path: '/accounts' },
-    { icon: FiList, label: 'Transactions', path: '/expenses' },
+    { icon: FiList, label: 'Transactions', path: '/transactions' },
     { icon: FiTag, label: 'Categories', path: '/categories' },
     { icon: FiBarChart2, label: 'Analytics', path: '/analytics' },
     { icon: FiCpu, label: 'AI Insights', path: '/ai-insights' },

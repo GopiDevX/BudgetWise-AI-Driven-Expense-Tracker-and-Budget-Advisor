@@ -131,9 +131,50 @@ class AuthService {
         throw new Error(error || 'Login failed');
       }
 
-      return await response.json();
+      const result = await response.json();
+
+      // Store token and user data
+      localStorage.setItem('budgetwise_token', result.token);
+
+      // Extract user info from JWT token
+      const user = this.decodeJWT(result.token);
+      localStorage.setItem('budgetwise_user', JSON.stringify(user));
+
+      return user;
     } catch (error) {
       console.error('Login user error:', error);
+      throw error;
+    }
+  }
+
+  // Authenticate with Google token
+  async authenticateWithGoogle(googleToken) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/google`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token: googleToken }),
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || 'Google authentication failed');
+      }
+
+      const result = await response.json();
+
+      // Store token and user data
+      localStorage.setItem('budgetwise_token', result.token);
+
+      // Extract user info from JWT token
+      const user = this.decodeJWT(result.token);
+      localStorage.setItem('budgetwise_user', JSON.stringify(user));
+
+      return user;
+    } catch (error) {
+      console.error('Complete Google authentication error:', error);
       throw error;
     }
   }

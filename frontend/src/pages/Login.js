@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
 import styled from 'styled-components';
 import { FiLock, FiEye, FiEyeOff, FiMail, FiKey } from 'react-icons/fi';
 import usePageTitle from '../hooks/usePageTitle';
@@ -276,7 +277,24 @@ const Login = () => {
   const [resendTimer, setResendTimer] = useState(0);
   const resendInterval = useRef(null);
   const navigate = useNavigate();
-  const { setUserAuthenticated } = useAuth();
+  const { setUserAuthenticated, loginWithGoogle } = useAuth();
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setLoading(true);
+      setError('');
+      await loginWithGoogle(credentialResponse.credential);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message || 'Google authentication failed');
+      console.error('Google login error:', err);
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError('Google Sign-In was unsuccessful. Please try again.');
+  };
 
   const handleContinue = async (e) => {
     e.preventDefault();
@@ -321,8 +339,8 @@ const Login = () => {
       if (step === 1) {
         // Step 1: Verify password and send OTP
         const loginResp = await authService.loginUser(email, password);
-        // backend returns { token, message } on successful credential verification
-        if (loginResp && loginResp.token) {
+        // backend verification is successful if it returns the logged-in user profile
+        if (loginResp && loginResp.email) {
           // Password verified, send OTP (backend sends asynchronously)
           try {
             await authService.requestLoginOtp(email);
@@ -533,6 +551,18 @@ const Login = () => {
         )}
 
         <Divider>or</Divider>
+
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={handleGoogleError}
+            useOneTap
+            shape="rectangular"
+            theme="outline"
+            text="continue_with"
+            size="large"
+          />
+        </div>
 
         <SignUpPrompt>
           Don't have an account? <SignUpLink to="/register">Sign up</SignUpLink>

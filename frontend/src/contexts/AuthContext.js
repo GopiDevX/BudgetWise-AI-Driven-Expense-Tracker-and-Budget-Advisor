@@ -51,6 +51,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithGoogle = async (googleToken) => {
+    try {
+      const response = await authService.authenticateWithGoogle(googleToken);
+      setUser(response);
+      return true;
+    } catch (error) {
+      console.error('Google login error:', error);
+      throw error;
+    }
+  };
+
   // Alternative login function for when user is already authenticated
   const setUserAuthenticated = (user) => {
     setUser(user);
@@ -113,6 +124,7 @@ export const AuthProvider = ({ children }) => {
     user,
     currentUser: user, // Alias for backward compatibility
     login,
+    loginWithGoogle,
     logout,
     signup,
     completeSignup,

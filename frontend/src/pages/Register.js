@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
 import styled, { keyframes, css } from 'styled-components';
 import { FiLock, FiEye, FiEyeOff, FiMail, FiUser, FiCheckCircle, FiShield, FiTrendingUp, FiActivity, FiDollarSign, FiAlertCircle } from 'react-icons/fi';
 import usePageTitle from '../hooks/usePageTitle';
@@ -666,7 +667,7 @@ const Spinner = styled.div`
 const Register = () => {
   usePageTitle('Sign Up | BudgetWise');
   const navigate = useNavigate();
-  const { signup } = useAuth();
+  const { signup, loginWithGoogle } = useAuth();
 
   // Step 1: Registration Form
   const [formData, setFormData] = useState({
@@ -694,6 +695,25 @@ const Register = () => {
   const [resendTimer, setResendTimer] = useState(0);
   const resendInterval = useRef(null);
   const [message, setMessage] = useState('');
+
+  const [googleError, setGoogleError] = useState('');
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setIsSubmitting(true);
+      setGoogleError('');
+      await loginWithGoogle(credentialResponse.credential);
+      navigate('/dashboard');
+    } catch (err) {
+      setGoogleError(err.message || 'Google signup failed');
+      console.error('Google signup error:', err);
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setGoogleError('Google Sign-In was unsuccessful. Please try again.');
+  };
 
   const handleEmailBlur = async () => {
     if (formData.email && !errors.email) {
@@ -1303,6 +1323,26 @@ const Register = () => {
               </button>
             </Form>
           )}
+
+          <div style={{ margin: '2rem 0', display: 'flex', alignItems: 'center', color: '#94a3b8' }}>
+            <div style={{ flex: 1, height: '1px', backgroundColor: '#e2e8f0' }}></div>
+            <span style={{ margin: '0 1rem', fontSize: '0.875rem' }}>or</span>
+            <div style={{ flex: 1, height: '1px', backgroundColor: '#e2e8f0' }}></div>
+          </div>
+
+          {googleError && <ErrorText style={{ marginBottom: '1rem', justifyContent: 'center' }}><FiAlertCircle size={14} /> {googleError}</ErrorText>}
+
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              useOneTap
+              shape="rectangular"
+              theme="outline"
+              text="signup_with"
+              size="large"
+            />
+          </div>
 
           <LinkText>
             Already have an account? <Link to="/login">Sign In</Link>

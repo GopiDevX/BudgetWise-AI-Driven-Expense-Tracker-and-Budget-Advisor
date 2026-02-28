@@ -204,14 +204,32 @@ public class ChatService {
 
         String response = llmService.getChatResponse(systemPrompt, "Generate financial insights JSON.");
 
-        // Clean up markdown code blocks if present
-        if (response.startsWith("```json")) {
-            response = response.replace("```json", "").replace("```", "");
-        } else if (response.startsWith("```")) {
-            response = response.replace("```", "");
+        if (response.startsWith("Error") || response.startsWith("Configuration Error")) {
+            return "[\n" +
+                    "  {\n" +
+                    "    \"type\": \"System Alert\",\n" +
+                    "    \"title\": \"AI Insights Unavailable\",\n" +
+                    "    \"description\": \"We couldn't generate personalized insights right now. Please check your API key or try again later.\",\n"
+                    +
+                    "    \"sentiment\": \"negative\"\n" +
+                    "  }\n" +
+                    "]";
         }
 
-        return response.trim();
+        int startIndex = response.indexOf("[");
+        int endIndex = response.lastIndexOf("]");
+        if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
+            return response.substring(startIndex, endIndex + 1);
+        }
+
+        return "[\n" +
+                "  {\n" +
+                "    \"type\": \"System Alert\",\n" +
+                "    \"title\": \"Format Error\",\n" +
+                "    \"description\": \"AI returned an invalid format. Please try again.\",\n" +
+                "    \"sentiment\": \"negative\"\n" +
+                "  }\n" +
+                "]";
     }
 
     private String buildFinancialContext(Long userId, String email) {

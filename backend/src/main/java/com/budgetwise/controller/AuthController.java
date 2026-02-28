@@ -46,6 +46,21 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/google")
+    public ResponseEntity<Map<String, String>> googleLogin(@RequestBody Map<String, String> request) {
+        try {
+            String token = request.get("token");
+            if (token == null || token.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Token is required."));
+            }
+
+            String jwtToken = authService.verifyGoogleTokenAndLogin(token);
+            return ResponseEntity.ok(Map.of("token", jwtToken, "message", "Google login successful"));
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(Map.of("error", "Google authentication failed: " + e.getMessage()));
+        }
+    }
+
     @PostMapping("/signup/request-otp")
     public ResponseEntity<Map<String, String>> requestSignupOtp(@RequestBody OtpRequest request) {
         try {

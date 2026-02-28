@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 /**
  * Export service for generating CSV and PDF files from transactions
@@ -96,10 +96,10 @@ const exportService = {
 
         doc.setFontSize(10);
         doc.setTextColor(100, 116, 139);
-        doc.text(`Total Income: ₹${totalIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, 14, 50);
-        doc.text(`Total Expenses: ₹${totalExpenses.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, 14, 56);
+        doc.text(`Total Income: Rs. ${totalIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, 14, 50);
+        doc.text(`Total Expenses: Rs. ${totalExpenses.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, 14, 56);
         doc.setTextColor(balance >= 0 ? 34 : 220, balance >= 0 ? 197 : 38, balance >= 0 ? 94 : 38);
-        doc.text(`Net Balance: ₹${balance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, 14, 62);
+        doc.text(`Net Balance: Rs. ${balance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, 14, 62);
 
         // Transaction table
         const tableData = transactions.map(tx => [
@@ -107,10 +107,10 @@ const exportService = {
             tx.description || '-',
             tx.category || 'Uncategorized',
             tx.type === 'income' ? 'Income' : 'Expense',
-            `₹${Math.abs(parseFloat(tx.amount)).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
+            `Rs. ${Math.abs(parseFloat(tx.amount)).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
         ]);
 
-        doc.autoTable({
+        autoTable(doc, {
             startY: 70,
             head: [['Date', 'Description', 'Category', 'Type', 'Amount']],
             body: tableData,

@@ -11,12 +11,20 @@ import com.budgetwise.repository.UserRepository;
 import com.budgetwise.repository.UserRoleRepository;
 import com.budgetwise.util.JwtUtil;
 import com.budgetwise.util.OtpUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
+
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -30,6 +38,9 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
+    @Value("${app.google.client-id}")
+    private String googleClientId;
+
     public AuthService(UserRepository userRepository, RoleRepository roleRepository,
             UserRoleRepository userRoleRepository, OtpTokenRepository otpTokenRepository,
             EmailService emailService, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
@@ -40,6 +51,70 @@ public class AuthService {
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+    }
+
+    public String verifyGoogleTokenAndLogin(String googleTokenString) {
+        try {
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                    new NetHttpTransport(), new GsonFactory())
+                    .setAudience(Collections.singletonList(googleClientId))
+                    .build();
+
+            GoogleIdToken idToken = verifier.verify(googleTokenString);
+            if (idToken != null) {
+                GoogleIdToken.Payload payload = idToken.getPayload();
+
+                String email = payload.getEmail();
+                String firstName = (String) payload.get("given_name");
+                String lastName = (String) payload.get("family_name");
+
+                Optional<User> userOpt = userRepository.findByEmail(email);
+                User user;
+
+                if (userOpt.isPresent()) {
+                    user = userOpt.get();
+                    // Update names if they were previously null (e.g. from an old signup)
+                    boolean updated = false;
+                    if (user.getFirstName() == null || user.getFirstName().isEmpty()) {
+                        user.setFirstName(firstName);
+                        updated = true;
+                    }
+                    if (user.getLastName() == null || user.getLastName().isEmpty()) {
+                        user.setLastName(lastName);
+                        updated = true;
+                    }
+                    if (updated) {
+                        user = userRepository.save(user);
+                    }
+                } else {
+                    // Create new user for Google Sign-In
+                    user = new User();
+                    user.setEmail(email);
+                    // Google users don't need a password to login, but we assign a random one for
+                    // DB constraints
+                    user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+                    user.setFirstName(firstName);
+                    user.setLastName(lastName);
+                    user.setEnabled(true);
+
+                    user = userRepository.save(user);
+
+                    Role userRole = roleRepository.findByName("USER")
+                            .orElseThrow(() -> new RuntimeException("USER role not found"));
+                    UserRole userRoleEntity = new UserRole();
+                    userRoleEntity.setUser(user);
+                    userRoleEntity.setRole(userRole);
+                    userRoleRepository.save(userRoleEntity);
+                }
+
+                // Generate native JWT token
+                return jwtUtil.generateToken(user);
+            } else {
+                throw new RuntimeException("Invalid Google ID token.");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Google authentication failed: " + e.getMessage(), e);
+        }
     }
 
     public String loginUser(String email, String password) {
